@@ -95,11 +95,14 @@ LRESULT APIENTRY PF_Driver(struct PLUGIN *pi, UINT uFunc, WPARAM wParam, LPARAM 
 
             {
                 RECT rc;
-                GetClientRect(hwnd, &rc);
+                GetClientRect(s_hChildWnd, &rc);
                 DWORD style = WS_CHILD | WS_VISIBLE | SBS_SIZEGRIP;
                 DWORD exstyle = 0;
-                s_hSizeGrip = CreateWindowEx(exstyle, TEXT("SCROLLBAR"), NULL,
-                    style, 0, 0, 0, 0,
+                s_hSizeGrip = CreateWindowEx(exstyle, TEXT("SCROLLBAR"), NULL, style,
+                    rc.right - GetSystemMetrics(SM_CXVSCROLL),
+                    rc.bottom - GetSystemMetrics(SM_CYHSCROLL),
+                    GetSystemMetrics(SM_CXVSCROLL),
+                    GetSystemMetrics(SM_CYHSCROLL),
                     s_hChildWnd, (HMENU)-1, s_hInst, NULL);
             }
 
