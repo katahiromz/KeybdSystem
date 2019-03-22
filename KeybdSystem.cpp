@@ -28,6 +28,8 @@ DialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     HWND hwndParent = GetParent(hwnd);
     switch (uMsg)
     {
+    case WM_INITDIALOG:
+        return TRUE;
     case WM_COMMAND:
         PostMessage(hwndParent, uMsg, wParam, lParam);
         break;
@@ -72,42 +74,57 @@ LRESULT APIENTRY PF_Driver(struct PLUGIN *pi, UINT uFunc, WPARAM wParam, LPARAM 
 
     case DRIVER_RECREATE:
         {
-            DestroyWindow(s_hSizeGrip);
-            s_hSizeGrip = NULL;
+            BOOL bHadChild = IsWindow(s_hChildWnd);
+            RECT rcWnd;
+            GetWindowRect(hwnd, &rcWnd);
 
-            DestroyWindow(s_hChildWnd);
-            pi->plugin_window = s_hChildWnd = NULL;
+            {
+                DestroyWindow(s_hSizeGrip);
+                s_hSizeGrip = NULL;
+
+                DestroyWindow(s_hChildWnd);
+                pi->plugin_window = s_hChildWnd = NULL;
+            }
+
+            s_hChildWnd = CreateDialog(s_plugin.plugin_instance, MAKEINTRESOURCE(wParam),
+                                       hwnd, DialogProc);
+            if (!s_hChildWnd)
+                return FALSE;
+
+            s_layout.init(s_hChildWnd);
+
+            {
+                RECT rc;
+                GetClientRect(hwnd, &rc);
+                DWORD style = WS_CHILD | WS_VISIBLE | SBS_SIZEGRIP;
+                DWORD exstyle = 0;
+                s_hSizeGrip = CreateWindowEx(exstyle, TEXT("SCROLLBAR"), NULL,
+                    style, 0, 0, 0, 0,
+                    s_hChildWnd, (HMENU)-1, s_hInst, NULL);
+            }
+
+            {
+                RECT rc;
+                GetWindowRect(s_hChildWnd, &rc);
+                DWORD style = GetWindowLong(hwnd, GWL_STYLE);
+                DWORD exstyle = GetWindowLong(hwnd, GWL_EXSTYLE);
+                AdjustWindowRectEx(&rc, style, FALSE, exstyle);
+
+                SetWindowPos(hwnd, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top,
+                             SWP_NOMOVE | SWP_NOZORDER);
+            }
+
+            pi->plugin_window = s_hChildWnd;
+
+            if (bHadChild)
+            {
+                MoveWindow(hwnd, rcWnd.left, rcWnd.top,
+                    rcWnd.right - rcWnd.left,
+                    rcWnd.bottom - rcWnd.top, FALSE);
+            }
+
+            ShowWindow(s_hChildWnd, SW_SHOW);
         }
-
-        s_hChildWnd = CreateDialog(s_plugin.plugin_instance, MAKEINTRESOURCE(wParam),
-                                   hwnd, DialogProc);
-        if (!s_hChildWnd)
-            return FALSE;
-
-        s_layout.init(s_hChildWnd);
-
-        {
-            RECT rc;
-            GetClientRect(hwnd, &rc);
-            DWORD style = WS_CHILD | WS_VISIBLE | SBS_SIZEGRIP;
-            DWORD exstyle = 0;
-            s_hSizeGrip = CreateWindowEx(exstyle, TEXT("SCROLLBAR"), NULL,
-                style, 0, 0, 0, 0,
-                s_hChildWnd, (HMENU)-1, s_hInst, NULL);
-        }
-
-        {
-            RECT rc;
-            GetWindowRect(s_hChildWnd, &rc);
-            DWORD style = GetWindowLong(hwnd, GWL_STYLE);
-            DWORD exstyle = GetWindowLong(hwnd, GWL_EXSTYLE);
-            AdjustWindowRectEx(&rc, style, FALSE, exstyle);
-
-            SetWindowPos(hwnd, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top,
-                         SWP_NOMOVE | SWP_NOZORDER);
-        }
-
-        pi->plugin_window = s_hChildWnd;
         return TRUE;
 
     case DRIVER_DESTROY:
