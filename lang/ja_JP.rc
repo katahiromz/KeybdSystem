@@ -224,9 +224,9 @@ FONT 10, "MS UI Gothic"
     PUSHBUTTON "れ", -1, 270, 0, 19, 19
     PUSHBUTTON "ろ", -1, 290, 0, 19, 19
     PUSHBUTTON "わ", -1, 210, 20, 19, 19
-    PUSHBUTTON "ー", -1, 230, 20, 19, 19
-    PUSHBUTTON "を", -1, 250, 20, 19, 19
-    PUSHBUTTON "ん", -1, 270, 20, 19, 19
+    PUSHBUTTON "を", -1, 230, 20, 19, 19
+    PUSHBUTTON "ん", -1, 250, 20, 19, 19
+    PUSHBUTTON "ー", -1, 270, 20, 19, 19
     PUSHBUTTON "小", -1, 290, 20, 19, 19
     PUSHBUTTON "゛", -1, 210, 40, 19, 19
     PUSHBUTTON "゜", -1, 230, 40, 19, 19
@@ -299,9 +299,9 @@ FONT 10, "MS UI Gothic"
     PUSHBUTTON "レ", -1, 270, 0, 19, 19
     PUSHBUTTON "ロ", -1, 290, 0, 19, 19
     PUSHBUTTON "ワ", -1, 210, 20, 19, 19
-    PUSHBUTTON "ー", -1, 230, 20, 19, 19
-    PUSHBUTTON "ヲ", -1, 250, 20, 19, 19
-    PUSHBUTTON "ン", -1, 270, 20, 19, 19
+    PUSHBUTTON "ヲ", -1, 230, 20, 19, 19
+    PUSHBUTTON "ン", -1, 250, 20, 19, 19
+    PUSHBUTTON "ー", -1, 270, 20, 19, 19
     PUSHBUTTON "小", -1, 290, 20, 19, 19
     PUSHBUTTON "゛", -1, 210, 40, 19, 19
     PUSHBUTTON "゜", -1, 230, 40, 19, 19
