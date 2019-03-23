@@ -572,31 +572,37 @@ Plugin_Act(PLUGIN *pi, UINT uAction, WPARAM wParam, LPARAM lParam)
             HWND hwndCaps = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_CAPS));
             if (s_dwStatus & CAPS)
             {
-                Button_SetCheck(hwndCaps, BST_CHECKED);
+                if (hwndCaps)
+                    Button_SetCheck(hwndCaps, BST_CHECKED);
             }
             else
             {
-                Button_SetCheck(hwndCaps, BST_UNCHECKED);
+                if (hwndCaps)
+                    Button_SetCheck(hwndCaps, BST_UNCHECKED);
             }
 
             HWND hwndHira = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_HIRAGANA));
             if (s_dwStatus & HIRA)
             {
-                Button_SetCheck(hwndHira, BST_CHECKED);
+                if (hwndHira)
+                    Button_SetCheck(hwndHira, BST_CHECKED);
             }
             else
             {
-                Button_SetCheck(hwndHira, BST_UNCHECKED);
+                if (hwndHira)
+                    Button_SetCheck(hwndHira, BST_UNCHECKED);
             }
 
             HWND hwndKata = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_KATAKANA));
             if (s_dwStatus & KATA)
             {
-                Button_SetCheck(hwndKata, BST_CHECKED);
+                if (hwndKata)
+                    Button_SetCheck(hwndKata, BST_CHECKED);
             }
             else
             {
-                Button_SetCheck(hwndKata, BST_UNCHECKED);
+                if (hwndKata)
+                    Button_SetCheck(hwndKata, BST_UNCHECKED);
             }
         }
         break;
