@@ -5,11 +5,13 @@
 
 #define IDC_STATIC                          -1
 
-#define IDD_LOWER                           1
-#define IDD_UPPER                           2
-#define IDD_DIGITS                          3
-#define IDD_HIRAGANA                        4
-#define IDD_KATAKANA                        5
+#define IDD_LOWER                           100
+#define IDD_UPPER                           101
+#define IDD_DIGITS                          102
+#define IDD_HIRAGANA                        103
+#define IDD_KATAKANA                        104
+#define IDD_HIRAGANA_SMALL                  105
+#define IDD_KATAKANA_SMALL                  106
 
 #define IDS_KANA                            100
 #define IDS_ABC                             101
@@ -27,6 +29,7 @@
 #define IDS_DEL                             113
 #define IDS_LEFT                            114
 #define IDS_RIGHT                           115
+#define IDS_SMALL                           116
 
 #ifdef APSTUDIO_INVOKED
     #ifndef APSTUDIO_READONLY_SYMBOLS

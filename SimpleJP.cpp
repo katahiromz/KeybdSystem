@@ -17,6 +17,7 @@ static DWORD s_dwConv = 0;
 #define CAPS 2
 #define HIRA 4
 #define KATA 8
+#define SMALL 16
 static DWORD s_dwStatus = 0;
 
 static LPTSTR LoadStringDx(INT nID)
@@ -299,6 +300,7 @@ static void
 OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
             HWND hwndCtl, const TCHAR *text)
 {
+    static WCHAR s_chOld = 0;
     if (hwndCtl == NULL)
         return;
 
@@ -307,6 +309,7 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         MyKeybdEvent(VK_LEFT, 0, 0, 0);
         MySleep();
         MyKeybdEvent(VK_LEFT, 0, KEYEVENTF_KEYUP, 0);
+        s_chOld = 0;
         return;
     }
     if (lstrcmpi(text, LoadStringDx(IDS_RIGHT)) == 0)
@@ -314,17 +317,44 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         MyKeybdEvent(VK_RIGHT, 0, 0, 0);
         MySleep();
         MyKeybdEvent(VK_RIGHT, 0, KEYEVENTF_KEYUP, 0);
+        s_chOld = 0;
+        return;
+    }
+    if (lstrcmpi(text, LoadStringDx(IDS_SMALL)) == 0)
+    {
+        switch (s_nKeybdID)
+        {
+        case IDD_HIRAGANA:
+            s_nKeybdID = IDD_HIRAGANA_SMALL;
+            s_dwStatus |= SMALL;
+            break;
+        case IDD_KATAKANA:
+            s_nKeybdID = IDD_KATAKANA_SMALL;
+            s_dwStatus |= SMALL;
+            break;
+        case IDD_HIRAGANA_SMALL:
+            s_nKeybdID = IDD_HIRAGANA;
+            s_dwStatus &= ~SMALL;
+            break;
+        case IDD_KATAKANA_SMALL:
+            s_nKeybdID = IDD_KATAKANA;
+            s_dwStatus &= ~SMALL;
+            break;
+        }
+        s_dwConv = 0;
+        ImeOnOff(pi, FALSE);
+        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
+        s_chOld = 0;
         return;
     }
 
     if (text[1] == 0)
     {
-        static WCHAR chOld = 0;
-        if (chOld && text[0] == 0x309B)
+        if (s_chOld && text[0] == 0x309B)
         {
             DoTypeDakuten(pi, text[0]);
         }
-        else if (chOld && text[0] == 0x309C)
+        else if (s_chOld && text[0] == 0x309C)
         {
             DoTypeHanDakuten(pi, text[0]);
         }
@@ -341,9 +371,27 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
                 s_nKeybdID = IDD_LOWER;
             pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
         }
-        chOld = text[0];
+        else if (s_dwStatus & SMALL)
+        {
+            switch (s_nKeybdID)
+            {
+            case IDD_HIRAGANA_SMALL:
+                s_nKeybdID = IDD_HIRAGANA;
+                s_dwStatus &= ~SMALL;
+                pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
+                break;
+            case IDD_KATAKANA_SMALL:
+                s_nKeybdID = IDD_KATAKANA;
+                s_dwStatus &= ~SMALL;
+                pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
+                break;
+            }
+        }
+        s_chOld = text[0];
         return;
     }
+
+    s_chOld = 0;
 
     if (lstrcmpi(text, LoadStringDx(IDS_ENTER)) == 0)
     {
@@ -358,7 +406,7 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         s_nKeybdID = IDD_HIRAGANA;
         s_dwConv = IME_CMODE_NATIVE | IME_CMODE_FULLSHAPE;
         ImeOnOff(pi, TRUE);
-        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA);
+        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA | SMALL);
         s_dwStatus |= HIRA;
         pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
         return;
@@ -368,7 +416,7 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         s_nKeybdID = IDD_KATAKANA;
         s_dwConv = IME_CMODE_NATIVE | IME_CMODE_FULLSHAPE | IME_CMODE_KATAKANA;
         ImeOnOff(pi, TRUE);
-        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA);
+        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA | SMALL);
         s_dwStatus |= KATA;
         pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
         return;
@@ -378,7 +426,7 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         s_nKeybdID = IDD_LOWER;
         s_dwConv = 0;
         ImeOnOff(pi, FALSE);
-        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA);
+        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA | SMALL);
         pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
         return;
     }
@@ -387,7 +435,7 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         s_nKeybdID = IDD_DIGITS;
         s_dwConv = 0;
         ImeOnOff(pi, FALSE);
-        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA);
+        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA | SMALL);
         pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
         return;
     }
