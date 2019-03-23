@@ -199,6 +199,21 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
     if (hwndCtl == NULL)
         return;
 
+    if (lstrcmpi(text, LoadStringDx(IDS_LEFT)) == 0)
+    {
+        MyKeybdEvent(VK_LEFT, 0, 0, 0);
+        MySleep();
+        MyKeybdEvent(VK_LEFT, 0, KEYEVENTF_KEYUP, 0);
+        return;
+    }
+    if (lstrcmpi(text, LoadStringDx(IDS_RIGHT)) == 0)
+    {
+        MyKeybdEvent(VK_RIGHT, 0, 0, 0);
+        MySleep();
+        MyKeybdEvent(VK_RIGHT, 0, KEYEVENTF_KEYUP, 0);
+        return;
+    }
+
     if (text[1] == 0)
     {
         DoTypeOneKey(pi, text[0]);
@@ -324,6 +339,20 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         MyKeybdEvent(VK_SHIFT, 0, KEYEVENTF_KEYUP, 0);
         return;
     }
+    if (lstrcmpi(text, LoadStringDx(IDS_BS)) == 0)
+    {
+        MyKeybdEvent(VK_BACK, 0, 0, 0);
+        MySleep();
+        MyKeybdEvent(VK_BACK, 0, KEYEVENTF_KEYUP, 0);
+        return;
+    }
+    if (lstrcmpi(text, LoadStringDx(IDS_DEL)) == 0)
+    {
+        MyKeybdEvent(VK_DELETE, 0, 0, 0);
+        MySleep();
+        MyKeybdEvent(VK_DELETE, 0, KEYEVENTF_KEYUP, 0);
+        return;
+    }
 }
 
 static void
@@ -358,26 +387,46 @@ Plugin_Act(PLUGIN *pi, UINT uAction, WPARAM wParam, LPARAM lParam)
         OnCommand(pi, wParam, lParam);
         break;
     case ACTION_REFRESH:
-        if (s_dwFlags & SHIFT)
         {
-            HWND hwndShift = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), TEXT("Shift"));
-            Button_SetCheck(hwndShift, BST_CHECKED);
-        }
-        else
-        {
-            HWND hwndShift = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), TEXT("Shift"));
-            Button_SetCheck(hwndShift, BST_UNCHECKED);
-        }
+            HWND hwndShift = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_SHIFT));
+            if (s_dwFlags & SHIFT)
+            {
+                Button_SetCheck(hwndShift, BST_CHECKED);
+            }
+            else
+            {
+                Button_SetCheck(hwndShift, BST_UNCHECKED);
+            }
 
-        if (s_dwFlags & CAPS)
-        {
-            HWND hwndCaps = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), TEXT("Caps"));
-            Button_SetCheck(hwndCaps, BST_CHECKED);
-        }
-        else
-        {
-            HWND hwndCaps = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), TEXT("Caps"));
-            Button_SetCheck(hwndCaps, BST_UNCHECKED);
+            HWND hwndCaps = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_CAPS));
+            if (s_dwFlags & CAPS)
+            {
+                Button_SetCheck(hwndCaps, BST_CHECKED);
+            }
+            else
+            {
+                Button_SetCheck(hwndCaps, BST_UNCHECKED);
+            }
+
+            HWND hwndHira = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_HIRAGANA));
+            if (s_dwFlags & HIRA)
+            {
+                Button_SetCheck(hwndHira, BST_CHECKED);
+            }
+            else
+            {
+                Button_SetCheck(hwndHira, BST_UNCHECKED);
+            }
+
+            HWND hwndKata = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_KATAKANA));
+            if (s_dwFlags & KATA)
+            {
+                Button_SetCheck(hwndKata, BST_CHECKED);
+            }
+            else
+            {
+                Button_SetCheck(hwndKata, BST_UNCHECKED);
+            }
         }
         break;
     }

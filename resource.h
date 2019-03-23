@@ -23,6 +23,10 @@
 #define IDS_NOCONV                          109
 #define IDS_NEXTCAND                        110
 #define IDS_PREVCAND                        111
+#define IDS_BS                              112
+#define IDS_DEL                             113
+#define IDS_LEFT                            114
+#define IDS_RIGHT                           115
 
 #ifdef APSTUDIO_INVOKED
     #ifndef APSTUDIO_READONLY_SYMBOLS

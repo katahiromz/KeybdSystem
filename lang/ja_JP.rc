@@ -239,7 +239,7 @@ FONT 10, "MS UI Gothic"
     PUSHBUTTON "無変換", IDC_STATIC, 310, 20, 39, 19
     PUSHBUTTON "次候補", IDC_STATIC, 310, 40, 39, 19
     PUSHBUTTON "前候補", IDC_STATIC, 310, 60, 39, 19
-    PUSHBUTTON " ", IDC_STATIC, 310, 80, 39, 19
+    PUSHBUTTON "　", IDC_STATIC, 310, 80, 39, 19
     AUTOCHECKBOX "Shift", IDC_STATIC, 0, 85, 48, 23, BS_PUSHLIKE
     PUSHBUTTON "BS", IDC_STATIC, 50, 85, 23, 23
     PUSHBUTTON "Del", IDC_STATIC, 75, 85, 23, 23
@@ -314,7 +314,7 @@ FONT 10, "MS UI Gothic"
     PUSHBUTTON "無変換", IDC_STATIC, 310, 20, 39, 19
     PUSHBUTTON "次候補", IDC_STATIC, 310, 40, 39, 19
     PUSHBUTTON "前候補", IDC_STATIC, 310, 60, 39, 19
-    PUSHBUTTON " ", IDC_STATIC, 310, 80, 39, 19
+    PUSHBUTTON "　", IDC_STATIC, 310, 80, 39, 19
     AUTOCHECKBOX "Shift", IDC_STATIC, 0, 85, 48, 23, BS_PUSHLIKE
     PUSHBUTTON "BS", IDC_STATIC, 50, 85, 23, 23
     PUSHBUTTON "Del", IDC_STATIC, 75, 85, 23, 23
@@ -342,6 +342,10 @@ STRINGTABLE
     IDS_NOCONV, "無変換"
     IDS_NEXTCAND, "次候補"
     IDS_PREVCAND, "前候補"
+    IDS_BS, "BS"
+    IDS_DEL, "Del"
+    IDS_LEFT, "←"
+    IDS_RIGHT, "→"
 }
 
 //////////////////////////////////////////////////////////////////////////////
