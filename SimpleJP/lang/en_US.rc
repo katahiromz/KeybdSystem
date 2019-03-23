@@ -426,6 +426,10 @@ STRINGTABLE
     IDS_END, "End"
     IDS_PGUP, "PgUp"
     IDS_PGDN, "PgDn"
+    IDS_UP, "Up"
+    IDS_DOWN, "Down"
+    IDS_PAUSE, "Pause"
+    IDS_ESC, "Esc"
 }
 
 //////////////////////////////////////////////////////////////////////////////

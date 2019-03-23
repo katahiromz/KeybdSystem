@@ -10,7 +10,7 @@
 #include "resource.h"
 
 static HINSTANCE s_hinstDLL;
-static UINT s_nKeybdID = IDD_LOWER;
+static UINT s_nKeybdID = IDD_NUMPAD;
 static DWORD s_dwConv = 0;
 
 #define SHIFT 1
@@ -117,8 +117,8 @@ Plugin_Load(PLUGIN *pi, LPARAM lParam)
     }
 
     pi->plugin_version = 2;
-    StringCbCopy(pi->plugin_product_name, sizeof(pi->plugin_product_name), TEXT("SimpleJP"));
-    StringCbCopy(pi->plugin_filename, sizeof(pi->plugin_filename), TEXT("SimpleJP.keybd"));
+    StringCbCopy(pi->plugin_product_name, sizeof(pi->plugin_product_name), TEXT("SimpleNumPad"));
+    StringCbCopy(pi->plugin_filename, sizeof(pi->plugin_filename), TEXT("SimpleNumPad.keybd"));
     StringCbCopy(pi->plugin_company, sizeof(pi->plugin_company), TEXT("Katayama Hirofumi MZ"));
     StringCbCopy(pi->plugin_copyright, sizeof(pi->plugin_copyright), TEXT("Copyright (C) 2019 Katayama Hirofumi MZ"));
     pi->plugin_instance = s_hinstDLL;
@@ -206,105 +206,10 @@ static void DoTypeOneKey(PLUGIN *pi, TCHAR ch)
     MySleep();
 }
 
-static void DoTypeDakuten(PLUGIN *pi, TCHAR ch)
-{
-    typedef std::unordered_map<WCHAR, WCHAR> map_type;
-    static const map_type map =
-    {
-        // hiragana
-        {0x304B, 0x304C},
-        {0x304D, 0x304E},
-        {0x304F, 0x3050},
-        {0x3051, 0x3052},
-        {0x3053, 0x3054},
-        {0x3055, 0x3056},
-        {0x3057, 0x3058},
-        {0x3059, 0x305A},
-        {0x305B, 0x305C},
-        {0x305D, 0x305E},
-        {0x305F, 0x3060},
-        {0x3061, 0x3062},
-        {0x3064, 0x3065},
-        {0x3066, 0x3067},
-        {0x3068, 0x3069},
-        {0x306F, 0x3070},
-        {0x3072, 0x3073},
-        {0x3075, 0x3076},
-        {0x3078, 0x3079},
-        {0x307B, 0x307C},
-        {0x3046, 0x3094},
-        // katakana
-        {0x30AB, 0x30AC},
-        {0x30AD, 0x30AE},
-        {0x30AF, 0x30B0},
-        {0x30B1, 0x30B2},
-        {0x30B3, 0x30B4},
-        {0x30B5, 0x30B6},
-        {0x30B7, 0x30B8},
-        {0x30B9, 0x30BA},
-        {0x30BB, 0x30BC},
-        {0x30BD, 0x30BE},
-        {0x30BF, 0x30C0},
-        {0x30C1, 0x30C2},
-        {0x30C4, 0x30C5},
-        {0x30C6, 0x30C7},
-        {0x30C8, 0x30C9},
-        {0x30CF, 0x30D0},
-        {0x30D2, 0x30D3},
-        {0x30D5, 0x30D6},
-        {0x30D6, 0x30D9},
-        {0x30DB, 0x30DC},
-        {0x30A6, 0x30F4},
-   };
-
-    map_type::const_iterator it = map.find(ch);
-    if (it != map.end())
-    {
-        DoTypeBackSpace(pi);
-        DoTypeOneKey(pi, it->second);
-    }
-    else
-    {
-        DoTypeOneKey(pi, ch);
-    }
-}
-
-static void DoTypeHanDakuten(PLUGIN *pi, TCHAR ch)
-{
-    typedef std::unordered_map<WCHAR, WCHAR> map_type;
-    static const map_type map =
-    {
-        // hiragana
-        {0x306F, 0x3071},
-        {0x3072, 0x3074},
-        {0x3075, 0x3077},
-        {0x3078, 0x307A},
-        {0x307B, 0x307D},
-        // katakana
-        {0x30CF, 0x30D1},
-        {0x30D2, 0x30D2},
-        {0x30D5, 0x30D7},
-        {0x30D8, 0x30DA},
-        {0x30DB, 0x30DD},
-   };
-
-    map_type::const_iterator it = map.find(ch);
-    if (it != map.end())
-    {
-        DoTypeBackSpace(pi);
-        DoTypeOneKey(pi, it->second);
-    }
-    else
-    {
-        DoTypeOneKey(pi, ch);
-    }
-}
-
 static void
 OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
             HWND hwndCtl, const TCHAR *text)
 {
-    static WCHAR s_chOld = 0;
     if (hwndCtl == NULL)
         return;
 
@@ -313,7 +218,6 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         MyKeybdEvent(VK_UP, 0, 0, 0);
         MySleep();
         MyKeybdEvent(VK_UP, 0, KEYEVENTF_KEYUP, 0);
-        s_chOld = 0;
         return;
     }
     if (lstrcmpi(text, LoadStringDx(IDS_DOWN)) == 0)
@@ -321,7 +225,6 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         MyKeybdEvent(VK_DOWN, 0, 0, 0);
         MySleep();
         MyKeybdEvent(VK_DOWN, 0, KEYEVENTF_KEYUP, 0);
-        s_chOld = 0;
         return;
     }
     if (lstrcmpi(text, LoadStringDx(IDS_LEFT)) == 0)
@@ -329,7 +232,6 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         MyKeybdEvent(VK_LEFT, 0, 0, 0);
         MySleep();
         MyKeybdEvent(VK_LEFT, 0, KEYEVENTF_KEYUP, 0);
-        s_chOld = 0;
         return;
     }
     if (lstrcmpi(text, LoadStringDx(IDS_RIGHT)) == 0)
@@ -337,220 +239,20 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         MyKeybdEvent(VK_RIGHT, 0, 0, 0);
         MySleep();
         MyKeybdEvent(VK_RIGHT, 0, KEYEVENTF_KEYUP, 0);
-        s_chOld = 0;
-        return;
-    }
-    if (lstrcmpi(text, LoadStringDx(IDS_SMALL)) == 0)
-    {
-        switch (s_nKeybdID)
-        {
-        case IDD_HIRAGANA:
-            s_nKeybdID = IDD_HIRAGANA_SMALL;
-            s_dwStatus |= SMALL;
-            break;
-        case IDD_KATAKANA:
-            s_nKeybdID = IDD_KATAKANA_SMALL;
-            s_dwStatus |= SMALL;
-            break;
-        case IDD_HIRAGANA_SMALL:
-            s_nKeybdID = IDD_HIRAGANA;
-            s_dwStatus &= ~SMALL;
-            break;
-        case IDD_KATAKANA_SMALL:
-            s_nKeybdID = IDD_KATAKANA;
-            s_dwStatus &= ~SMALL;
-            break;
-        }
-        s_dwConv = 0;
-        ImeOnOff(pi, FALSE);
-        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
-        s_chOld = 0;
         return;
     }
 
     if (text[1] == 0)
     {
-        if (s_chOld && text[0] == 0x309B)
-        {
-            DoTypeDakuten(pi, text[0]);
-        }
-        else if (s_chOld && text[0] == 0x309C)
-        {
-            DoTypeHanDakuten(pi, text[0]);
-        }
-        else
-        {
-            DoTypeOneKey(pi, text[0]);
-        }
-        if (s_dwStatus & SHIFT)
-        {
-            s_dwStatus &= ~SHIFT;
-            if (s_dwStatus & CAPS)
-                s_nKeybdID = IDD_UPPER;
-            else
-                s_nKeybdID = IDD_LOWER;
-            pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
-        }
-        else if (s_dwStatus & SMALL)
-        {
-            switch (s_nKeybdID)
-            {
-            case IDD_HIRAGANA_SMALL:
-                s_nKeybdID = IDD_HIRAGANA;
-                s_dwStatus &= ~SMALL;
-                pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
-                break;
-            case IDD_KATAKANA_SMALL:
-                s_nKeybdID = IDD_KATAKANA;
-                s_dwStatus &= ~SMALL;
-                pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
-                break;
-            }
-        }
-        s_chOld = text[0];
+        DoTypeOneKey(pi, text[0]);
         return;
     }
-
-    s_chOld = 0;
 
     if (lstrcmpi(text, LoadStringDx(IDS_ENTER)) == 0)
     {
         MyKeybdEvent(VK_RETURN, 0, 0, 0);
         MySleep();
         MyKeybdEvent(VK_RETURN, 0, KEYEVENTF_KEYUP, 0);
-        return;
-    }
-    if (lstrcmpi(text, LoadStringDx(IDS_KANA)) == 0 ||
-        lstrcmpi(text, LoadStringDx(IDS_HIRAGANA)) == 0)
-    {
-        s_nKeybdID = IDD_HIRAGANA;
-        s_dwConv = IME_CMODE_NATIVE | IME_CMODE_FULLSHAPE;
-        ImeOnOff(pi, TRUE);
-        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA | SMALL | ALT | CTRL | SCROLL);
-        s_dwStatus |= HIRA;
-        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
-        return;
-    }
-    if (lstrcmpi(text, LoadStringDx(IDS_KATAKANA)) == 0)
-    {
-        s_nKeybdID = IDD_KATAKANA;
-        s_dwConv = IME_CMODE_NATIVE | IME_CMODE_FULLSHAPE | IME_CMODE_KATAKANA;
-        ImeOnOff(pi, TRUE);
-        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA | SMALL | ALT | CTRL | SCROLL);
-        s_dwStatus |= KATA;
-        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
-        return;
-    }
-    if (lstrcmpi(text, LoadStringDx(IDS_ABC)) == 0)
-    {
-        s_nKeybdID = IDD_LOWER;
-        s_dwConv = 0;
-        ImeOnOff(pi, FALSE);
-        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA | SMALL | ALT | CTRL | SCROLL);
-        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
-        return;
-    }
-    if (lstrcmpi(text, LoadStringDx(IDS_DIGITS)) == 0)
-    {
-        s_nKeybdID = IDD_DIGITS;
-        s_dwConv = 0;
-        ImeOnOff(pi, FALSE);
-        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA | SMALL | ALT | CTRL | SCROLL);
-        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
-        return;
-    }
-    if (lstrcmpi(text, LoadStringDx(IDS_CAPS)) == 0)
-    {
-        if (s_dwStatus & CAPS)
-            s_dwStatus &= ~CAPS;
-        else
-            s_dwStatus |= CAPS;
-
-        if (s_nKeybdID == IDD_LOWER)
-            s_nKeybdID = IDD_UPPER;
-        else
-            s_nKeybdID = IDD_LOWER;
-
-        s_dwConv = 0;
-        ImeOnOff(pi, FALSE);
-        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
-        return;
-    }
-    if (lstrcmpi(text, LoadStringDx(IDS_SHIFT)) == 0)
-    {
-        if (s_dwStatus & SHIFT)
-            s_dwStatus &= ~SHIFT;
-        else
-            s_dwStatus |= SHIFT;
-
-        if (s_nKeybdID == IDD_LOWER)
-            s_nKeybdID = IDD_UPPER;
-        else
-            s_nKeybdID = IDD_LOWER;
-
-        s_dwConv = 0;
-        ImeOnOff(pi, FALSE);
-        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
-        return;
-    }
-    if (lstrcmpi(text, LoadStringDx(IDS_SCROLL)) == 0)
-    {
-        if (s_dwStatus & SCROLL)
-            s_dwStatus &= ~SCROLL;
-        else
-            s_dwStatus |= SCROLL;
-
-        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
-        return;
-    }
-    if (lstrcmpi(text, LoadStringDx(IDS_CTRL)) == 0)
-    {
-        if (s_dwStatus & CTRL)
-            s_dwStatus &= ~CTRL;
-        else
-            s_dwStatus |= CTRL;
-
-        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
-        return;
-    }
-    if (lstrcmpi(text, LoadStringDx(IDS_ALT)) == 0)
-    {
-        if (s_dwStatus & ALT)
-            s_dwStatus &= ~ALT;
-        else
-            s_dwStatus |= ALT;
-
-        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
-        return;
-    }
-    if (lstrcmpi(text, LoadStringDx(IDS_CONV)) == 0)
-    {
-        MyKeybdEvent(VK_CONVERT, 0, 0, 0);
-        MySleep();
-        MyKeybdEvent(VK_CONVERT, 0, KEYEVENTF_KEYUP, 0);
-        return;
-    }
-    if (lstrcmpi(text, LoadStringDx(IDS_NOCONV)) == 0)
-    {
-        MyKeybdEvent(VK_NONCONVERT, 0, 0, 0);
-        MySleep();
-        MyKeybdEvent(VK_NONCONVERT, 0, KEYEVENTF_KEYUP, 0);
-        return;
-    }
-    if (lstrcmpi(text, LoadStringDx(IDS_NEXTCAND)) == 0)
-    {
-        MyKeybdEvent(VK_CONVERT, 0, 0, 0);
-        MySleep();
-        MyKeybdEvent(VK_CONVERT, 0, KEYEVENTF_KEYUP, 0);
-        return;
-    }
-    if (lstrcmpi(text, LoadStringDx(IDS_PREVCAND)) == 0)
-    {
-        MyKeybdEvent(VK_SHIFT, 0, 0, 0);
-        MyKeybdEvent(VK_CONVERT, 0, 0, 0);
-        MySleep();
-        MyKeybdEvent(VK_CONVERT, 0, KEYEVENTF_KEYUP, 0);
-        MyKeybdEvent(VK_SHIFT, 0, KEYEVENTF_KEYUP, 0);
         return;
     }
     if (lstrcmpi(text, LoadStringDx(IDS_BS)) == 0)
@@ -560,11 +262,32 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         MyKeybdEvent(VK_BACK, 0, KEYEVENTF_KEYUP, 0);
         return;
     }
-    if (lstrcmpi(text, LoadStringDx(IDS_DEL)) == 0)
+    if (lstrcmpi(text, LoadStringDx(IDS_ESC)) == 0)
     {
-        MyKeybdEvent(VK_DELETE, 0, 0, 0);
+        MyKeybdEvent(VK_ESCAPE, 0, 0, 0);
         MySleep();
-        MyKeybdEvent(VK_DELETE, 0, KEYEVENTF_KEYUP, 0);
+        MyKeybdEvent(VK_ESCAPE, 0, KEYEVENTF_KEYUP, 0);
+        return;
+    }
+    if (lstrcmpi(text, LoadStringDx(IDS_PAUSE)) == 0)
+    {
+        MyKeybdEvent(VK_PAUSE, 0, 0, 0);
+        MySleep();
+        MyKeybdEvent(VK_PAUSE, 0, KEYEVENTF_KEYUP, 0);
+        return;
+    }
+    if (lstrcmpi(text, LoadStringDx(IDS_HOME)) == 0)
+    {
+        MyKeybdEvent(VK_HOME, 0, 0, 0);
+        MySleep();
+        MyKeybdEvent(VK_HOME, 0, KEYEVENTF_KEYUP, 0);
+        return;
+    }
+    if (lstrcmpi(text, LoadStringDx(IDS_END)) == 0)
+    {
+        MyKeybdEvent(VK_END, 0, 0, 0);
+        MySleep();
+        MyKeybdEvent(VK_END, 0, KEYEVENTF_KEYUP, 0);
         return;
     }
 }
