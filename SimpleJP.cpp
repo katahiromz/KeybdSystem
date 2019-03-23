@@ -17,7 +17,7 @@ static DWORD s_dwConv = 0;
 #define CAPS 2
 #define HIRA 4
 #define KATA 8
-static DWORD s_dwFlags = 0;
+static DWORD s_dwStatus = 0;
 
 static LPTSTR LoadStringDx(INT nID)
 {
@@ -332,14 +332,14 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         {
             DoTypeOneKey(pi, text[0]);
         }
-        if (s_dwFlags & SHIFT)
+        if (s_dwStatus & SHIFT)
         {
-            s_dwFlags &= ~SHIFT;
-            if (s_dwFlags & CAPS)
+            s_dwStatus &= ~SHIFT;
+            if (s_dwStatus & CAPS)
                 s_nKeybdID = IDD_UPPER;
             else
                 s_nKeybdID = IDD_LOWER;
-            pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwFlags);
+            pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
         }
         chOld = text[0];
         return;
@@ -358,9 +358,9 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         s_nKeybdID = IDD_HIRAGANA;
         s_dwConv = IME_CMODE_NATIVE | IME_CMODE_FULLSHAPE;
         ImeOnOff(pi, TRUE);
-        s_dwFlags &= ~(SHIFT | CAPS | HIRA | KATA);
-        s_dwFlags |= HIRA;
-        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwFlags);
+        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA);
+        s_dwStatus |= HIRA;
+        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
         return;
     }
     if (lstrcmpi(text, LoadStringDx(IDS_KATAKANA)) == 0)
@@ -368,9 +368,9 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         s_nKeybdID = IDD_KATAKANA;
         s_dwConv = IME_CMODE_NATIVE | IME_CMODE_FULLSHAPE | IME_CMODE_KATAKANA;
         ImeOnOff(pi, TRUE);
-        s_dwFlags &= ~(SHIFT | CAPS | HIRA | KATA);
-        s_dwFlags |= KATA;
-        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwFlags);
+        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA);
+        s_dwStatus |= KATA;
+        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
         return;
     }
     if (lstrcmpi(text, LoadStringDx(IDS_ABC)) == 0)
@@ -378,8 +378,8 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         s_nKeybdID = IDD_LOWER;
         s_dwConv = 0;
         ImeOnOff(pi, FALSE);
-        s_dwFlags &= ~(SHIFT | CAPS | HIRA | KATA);
-        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwFlags);
+        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA);
+        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
         return;
     }
     if (lstrcmpi(text, LoadStringDx(IDS_DIGITS)) == 0)
@@ -387,16 +387,16 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         s_nKeybdID = IDD_DIGITS;
         s_dwConv = 0;
         ImeOnOff(pi, FALSE);
-        s_dwFlags &= ~(SHIFT | CAPS | HIRA | KATA);
-        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwFlags);
+        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA);
+        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
         return;
     }
     if (lstrcmpi(text, LoadStringDx(IDS_CAPS)) == 0)
     {
-        if (s_dwFlags & CAPS)
-            s_dwFlags &= ~CAPS;
+        if (s_dwStatus & CAPS)
+            s_dwStatus &= ~CAPS;
         else
-            s_dwFlags |= CAPS;
+            s_dwStatus |= CAPS;
 
         if (s_nKeybdID == IDD_LOWER)
             s_nKeybdID = IDD_UPPER;
@@ -405,15 +405,15 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
 
         s_dwConv = 0;
         ImeOnOff(pi, FALSE);
-        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwFlags);
+        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
         return;
     }
     if (lstrcmpi(text, LoadStringDx(IDS_SHIFT)) == 0)
     {
-        if (s_dwFlags & SHIFT)
-            s_dwFlags &= ~SHIFT;
+        if (s_dwStatus & SHIFT)
+            s_dwStatus &= ~SHIFT;
         else
-            s_dwFlags |= SHIFT;
+            s_dwStatus |= SHIFT;
 
         if (s_nKeybdID == IDD_LOWER)
             s_nKeybdID = IDD_UPPER;
@@ -422,7 +422,7 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
 
         s_dwConv = 0;
         ImeOnOff(pi, FALSE);
-        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwFlags);
+        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
         return;
     }
     if (lstrcmpi(text, LoadStringDx(IDS_CONV)) == 0)
@@ -496,7 +496,7 @@ Plugin_Act(PLUGIN *pi, UINT uAction, WPARAM wParam, LPARAM lParam)
         assert(0);
         break;
     case ACTION_RECREATE:
-        return pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwFlags);
+        return pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
     case ACTION_DESTROY:
         return pi->driver(pi, DRIVER_DESTROY, wParam, lParam);
     case ACTION_COMMAND:
@@ -505,7 +505,7 @@ Plugin_Act(PLUGIN *pi, UINT uAction, WPARAM wParam, LPARAM lParam)
     case ACTION_REFRESH:
         {
             HWND hwndShift = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_SHIFT));
-            if (s_dwFlags & SHIFT)
+            if (s_dwStatus & SHIFT)
             {
                 Button_SetCheck(hwndShift, BST_CHECKED);
             }
@@ -515,7 +515,7 @@ Plugin_Act(PLUGIN *pi, UINT uAction, WPARAM wParam, LPARAM lParam)
             }
 
             HWND hwndCaps = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_CAPS));
-            if (s_dwFlags & CAPS)
+            if (s_dwStatus & CAPS)
             {
                 Button_SetCheck(hwndCaps, BST_CHECKED);
             }
@@ -525,7 +525,7 @@ Plugin_Act(PLUGIN *pi, UINT uAction, WPARAM wParam, LPARAM lParam)
             }
 
             HWND hwndHira = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_HIRAGANA));
-            if (s_dwFlags & HIRA)
+            if (s_dwStatus & HIRA)
             {
                 Button_SetCheck(hwndHira, BST_CHECKED);
             }
@@ -535,7 +535,7 @@ Plugin_Act(PLUGIN *pi, UINT uAction, WPARAM wParam, LPARAM lParam)
             }
 
             HWND hwndKata = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_KATAKANA));
-            if (s_dwFlags & KATA)
+            if (s_dwStatus & KATA)
             {
                 Button_SetCheck(hwndKata, BST_CHECKED);
             }
