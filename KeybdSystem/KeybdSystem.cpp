@@ -194,8 +194,7 @@ BOOL OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     PF_ActOne(&s_plugin, ACTION_RECREATE, 0, 0);
 
-    LPTSTR psz = (LPTSTR)PF_ActOne(&s_plugin, ACTION_LOADSTR, IDS_APP_NAME, 0);
-    SetWindowText(hwnd, psz);
+    SetWindowText(hwnd, LoadStringDx(IDS_APP_NAME));
 
     return TRUE;
 }

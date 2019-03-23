@@ -23,10 +23,10 @@ if (NOT uppercase_CMAKE_BUILD_TYPE MATCHES "^(DEBUG|RELEASE|RELWITHDEBINFO|MINSI
     message(FATAL_ERROR "Invalid value for CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 endif()
 
-## set output directory (build/)
-#set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)
-#set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
-#set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
+# set output directory (build/)
+set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
+set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 if (WIN32)
     # enable Win32 resource
@@ -59,17 +59,6 @@ endif()
 
 ##############################################################################
 
-# SimpleJP.keybd
-add_library(SimpleJP SHARED SimpleJP.cpp SimpleJP.def SimpleJP_res.rc)
-target_link_libraries(SimpleJP imm32)
-set_target_properties(SimpleJP PROPERTIES OUTPUT_NAME "SimpleJP.keybd")
-set_target_properties(SimpleJP PROPERTIES PREFIX "")
-set_target_properties(SimpleJP PROPERTIES SUFFIX "")
-target_compile_definitions(SimpleJP PRIVATE -DPLUGIN_BUILD -DUNICODE -D_UNICODE)
-
-# executable
-add_executable(KeybdSystem WIN32 KeybdSystem.cpp PluginFramework.cpp)
-target_link_libraries(KeybdSystem comctl32 shlwapi imm32)
-target_compile_definitions(KeybdSystem PRIVATE -DUNICODE -D_UNICODE)
+subdirs(KeybdSystem SimpleJP)
 
 ##############################################################################
