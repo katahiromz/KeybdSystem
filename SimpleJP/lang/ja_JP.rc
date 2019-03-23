@@ -420,6 +420,7 @@ STRINGTABLE
     IDS_CTRL, "Ctrl"
     IDS_ALT, "Alt"
     IDS_WIN, "Win"
+    IDS_SCROLL, "SLock"
 }
 
 //////////////////////////////////////////////////////////////////////////////
