@@ -8,10 +8,10 @@ LANGUAGE LANG_ENGLISH, SUBLANG_DEFAULT
 //////////////////////////////////////////////////////////////////////////////
 // RT_DIALOG
 
-IDD_NUMPAD DIALOG 0, 0, 225, 150
+IDD_NUMPAD DIALOG 0, 0, 230, 150
 CAPTION "NumPad"
 STYLE DS_CONTROL | WS_CHILD | WS_CAPTION
-FONT 10, "Tahoma"
+FONT 10, "MS UI Gothic"
 {
     PUSHBUTTON "0", IDC_STATIC, 0, 120, 30, 30
     PUSHBUTTON "1", IDC_STATIC, 0, 90, 30, 30
@@ -29,10 +29,14 @@ FONT 10, "Tahoma"
     PUSHBUTTON "-", IDC_STATIC, 60, 0, 60, 30
     PUSHBUTTON "+", IDC_STATIC, 90, 30, 30, 60
     PUSHBUTTON "Enter", IDC_STATIC, 90, 90, 30, 60
-    PUSHBUTTON "Esc", IDC_STATIC, 135, 30, 30, 30
-    PUSHBUTTON "Pause", IDC_STATIC, 180, 30, 30, 30
-    PUSHBUTTON "Home", IDC_STATIC, 135, 90, 30, 30
-    PUSHBUTTON "End", IDC_STATIC, 180, 90, 30, 30
+    PUSHBUTTON "Esc", IDC_STATIC, 134, 0, 30, 30
+    PUSHBUTTON "Pause", IDC_STATIC, 180, 0, 30, 30
+    PUSHBUTTON "Home", IDC_STATIC, 135, 45, 30, 30
+    PUSHBUTTON "End", IDC_STATIC, 180, 45, 30, 30
+    PUSHBUTTON "Up", IDC_STATIC, 157, 90, 30, 30
+    PUSHBUTTON "Down", IDC_STATIC, 157, 120, 30, 30
+    PUSHBUTTON "Left", IDC_STATIC, 125, 120, 30, 30
+    PUSHBUTTON "Right", IDC_STATIC, 190, 120, 30, 30
 }
 
 //////////////////////////////////////////////////////////////////////////////
