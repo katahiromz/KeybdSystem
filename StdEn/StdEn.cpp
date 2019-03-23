@@ -234,7 +234,7 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
     if (CheckButtonText(text, IDS_RIGHT, VK_RIGHT))
         return;
 
-    if (text[1] == 0)
+    if (text[1] == 0 || lstrcmpi(text, TEXT("&&")) == 0)
     {
         DoTypeOneKey(pi, text[0]);
         if (s_dwStatus & (SHIFT | CTRL | ALT))

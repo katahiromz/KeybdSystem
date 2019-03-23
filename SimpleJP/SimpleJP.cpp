@@ -300,6 +300,18 @@ static void DoTypeHanDakuten(PLUGIN *pi, TCHAR ch)
     }
 }
 
+static BOOL CheckButtonText(const TCHAR *text, UINT ids, UINT vk)
+{
+    if (lstrcmpi(text, LoadStringDx(ids)) == 0)
+    {
+        MyKeybdEvent(vk, 0, 0, 0);
+        MySleep();
+        MyKeybdEvent(vk, 0, KEYEVENTF_KEYUP, 0);
+        return TRUE;
+    }
+    return FALSE;
+}
+
 static void
 OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
             HWND hwndCtl, const TCHAR *text)
@@ -308,35 +320,23 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
     if (hwndCtl == NULL)
         return;
 
-    if (lstrcmpi(text, LoadStringDx(IDS_UP)) == 0)
+    if (CheckButtonText(text, IDS_UP, VK_UP))
     {
-        MyKeybdEvent(VK_UP, 0, 0, 0);
-        MySleep();
-        MyKeybdEvent(VK_UP, 0, KEYEVENTF_KEYUP, 0);
         s_chOld = 0;
         return;
     }
-    if (lstrcmpi(text, LoadStringDx(IDS_DOWN)) == 0)
+    if (CheckButtonText(text, IDS_DOWN, VK_DOWN))
     {
-        MyKeybdEvent(VK_DOWN, 0, 0, 0);
-        MySleep();
-        MyKeybdEvent(VK_DOWN, 0, KEYEVENTF_KEYUP, 0);
         s_chOld = 0;
         return;
     }
-    if (lstrcmpi(text, LoadStringDx(IDS_LEFT)) == 0)
+    if (CheckButtonText(text, IDS_LEFT, VK_LEFT))
     {
-        MyKeybdEvent(VK_LEFT, 0, 0, 0);
-        MySleep();
-        MyKeybdEvent(VK_LEFT, 0, KEYEVENTF_KEYUP, 0);
         s_chOld = 0;
         return;
     }
-    if (lstrcmpi(text, LoadStringDx(IDS_RIGHT)) == 0)
+    if (CheckButtonText(text, IDS_RIGHT, VK_RIGHT))
     {
-        MyKeybdEvent(VK_RIGHT, 0, 0, 0);
-        MySleep();
-        MyKeybdEvent(VK_RIGHT, 0, KEYEVENTF_KEYUP, 0);
         s_chOld = 0;
         return;
     }
@@ -368,7 +368,7 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         return;
     }
 
-    if (text[1] == 0)
+    if (text[1] == 0 || lstrcmpi(text, TEXT("&&")) == 0)
     {
         if (s_chOld && text[0] == 0x309B)
         {
@@ -413,11 +413,9 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
 
     s_chOld = 0;
 
-    if (lstrcmpi(text, LoadStringDx(IDS_ENTER)) == 0)
+    if (CheckButtonText(text, IDS_ENTER, VK_RETURN))
     {
-        MyKeybdEvent(VK_RETURN, 0, 0, 0);
-        MySleep();
-        MyKeybdEvent(VK_RETURN, 0, KEYEVENTF_KEYUP, 0);
+        s_chOld = 0;
         return;
     }
     if (lstrcmpi(text, LoadStringDx(IDS_KANA)) == 0 ||
@@ -523,27 +521,12 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
         return;
     }
-    if (lstrcmpi(text, LoadStringDx(IDS_CONV)) == 0)
-    {
-        MyKeybdEvent(VK_CONVERT, 0, 0, 0);
-        MySleep();
-        MyKeybdEvent(VK_CONVERT, 0, KEYEVENTF_KEYUP, 0);
+    if (CheckButtonText(text, IDS_CONV, VK_CONVERT))
         return;
-    }
-    if (lstrcmpi(text, LoadStringDx(IDS_NOCONV)) == 0)
-    {
-        MyKeybdEvent(VK_NONCONVERT, 0, 0, 0);
-        MySleep();
-        MyKeybdEvent(VK_NONCONVERT, 0, KEYEVENTF_KEYUP, 0);
+    if (CheckButtonText(text, IDS_NOCONV, VK_NONCONVERT))
         return;
-    }
-    if (lstrcmpi(text, LoadStringDx(IDS_NEXTCAND)) == 0)
-    {
-        MyKeybdEvent(VK_CONVERT, 0, 0, 0);
-        MySleep();
-        MyKeybdEvent(VK_CONVERT, 0, KEYEVENTF_KEYUP, 0);
+    if (CheckButtonText(text, IDS_NEXTCAND, VK_CONVERT))
         return;
-    }
     if (lstrcmpi(text, LoadStringDx(IDS_PREVCAND)) == 0)
     {
         MyKeybdEvent(VK_SHIFT, 0, 0, 0);
@@ -553,20 +536,10 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         MyKeybdEvent(VK_SHIFT, 0, KEYEVENTF_KEYUP, 0);
         return;
     }
-    if (lstrcmpi(text, LoadStringDx(IDS_BS)) == 0)
-    {
-        MyKeybdEvent(VK_BACK, 0, 0, 0);
-        MySleep();
-        MyKeybdEvent(VK_BACK, 0, KEYEVENTF_KEYUP, 0);
+    if (CheckButtonText(text, IDS_BS, VK_BACK))
         return;
-    }
-    if (lstrcmpi(text, LoadStringDx(IDS_DEL)) == 0)
-    {
-        MyKeybdEvent(VK_DELETE, 0, 0, 0);
-        MySleep();
-        MyKeybdEvent(VK_DELETE, 0, KEYEVENTF_KEYUP, 0);
+    if (CheckButtonText(text, IDS_DEL, VK_DELETE))
         return;
-    }
 }
 
 static void
