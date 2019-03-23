@@ -337,6 +337,11 @@ STRINGTABLE
     IDS_KATAKANA, "カタカナ"
     IDS_CAPS, "Caps"
     IDS_SHIFT, "Shift"
+    IDS_ENTER, "Enter"
+    IDS_CONV, "変換"
+    IDS_NOCONV, "無変換"
+    IDS_NEXTCAND, "次候補"
+    IDS_PREVCAND, "前候補"
 }
 
 //////////////////////////////////////////////////////////////////////////////

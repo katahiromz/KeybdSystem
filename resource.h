@@ -18,6 +18,11 @@
 #define IDS_KATAKANA                        104
 #define IDS_CAPS                            105
 #define IDS_SHIFT                           106
+#define IDS_ENTER                           107
+#define IDS_CONV                            108
+#define IDS_NOCONV                          109
+#define IDS_NEXTCAND                        110
+#define IDS_PREVCAND                        111
 
 #ifdef APSTUDIO_INVOKED
     #ifndef APSTUDIO_READONLY_SYMBOLS

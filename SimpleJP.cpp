@@ -214,7 +214,7 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         return;
     }
 
-    if (lstrcmpi(text, TEXT("Enter")) == 0)
+    if (lstrcmpi(text, LoadStringDx(IDS_ENTER)) == 0)
     {
         MyKeybdEvent(VK_RETURN, 0, 0, 0);
         MySleep();
@@ -292,6 +292,36 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         s_dwConv = 0;
         ImeOnOff(pi, FALSE);
         pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwFlags);
+        return;
+    }
+    if (lstrcmpi(text, LoadStringDx(IDS_CONV)) == 0)
+    {
+        MyKeybdEvent(VK_CONVERT, 0, 0, 0);
+        MySleep();
+        MyKeybdEvent(VK_CONVERT, 0, KEYEVENTF_KEYUP, 0);
+        return;
+    }
+    if (lstrcmpi(text, LoadStringDx(IDS_NOCONV)) == 0)
+    {
+        MyKeybdEvent(VK_NONCONVERT, 0, 0, 0);
+        MySleep();
+        MyKeybdEvent(VK_NONCONVERT, 0, KEYEVENTF_KEYUP, 0);
+        return;
+    }
+    if (lstrcmpi(text, LoadStringDx(IDS_NEXTCAND)) == 0)
+    {
+        MyKeybdEvent(VK_CONVERT, 0, 0, 0);
+        MySleep();
+        MyKeybdEvent(VK_CONVERT, 0, KEYEVENTF_KEYUP, 0);
+        return;
+    }
+    if (lstrcmpi(text, LoadStringDx(IDS_PREVCAND)) == 0)
+    {
+        MyKeybdEvent(VK_SHIFT, 0, 0, 0);
+        MyKeybdEvent(VK_CONVERT, 0, 0, 0);
+        MySleep();
+        MyKeybdEvent(VK_CONVERT, 0, KEYEVENTF_KEYUP, 0);
+        MyKeybdEvent(VK_SHIFT, 0, KEYEVENTF_KEYUP, 0);
         return;
     }
 }
