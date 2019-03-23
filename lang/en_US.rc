@@ -415,6 +415,7 @@ STRINGTABLE
     IDS_LEFT, "Left"
     IDS_RIGHT, "Right"
     IDS_SMALL, "Sm"
+    IDS_APP_NAME, "Virtual Keyboard (KeybdSystem)"
 }
 
 //////////////////////////////////////////////////////////////////////////////

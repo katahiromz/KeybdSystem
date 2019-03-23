@@ -4,6 +4,7 @@
 #include <cassert>
 #include "MSmoothLayout.hpp"
 #include "PluginFramework.hpp"
+#include "resource.h"
 
 static const TCHAR s_szName[] = TEXT("KeybdSystem");
 static HINSTANCE s_hInst = NULL;
@@ -13,6 +14,22 @@ static HWND s_hSizeGrip = NULL;
 static MSmoothLayout s_layout;
 static HWND s_hwndTarget = NULL;
 static PLUGIN s_plugin;
+
+static LPTSTR LoadStringDx(INT nID)
+{
+    static UINT s_index = 0;
+    const UINT cchBuffMax = 1024;
+    static TCHAR s_sz[4][cchBuffMax];
+
+    TCHAR *pszBuff = s_sz[s_index];
+    s_index = (s_index + 1) % _countof(s_sz);
+    pszBuff[0] = 0;
+    if (!::LoadString(NULL, nID, pszBuff, cchBuffMax))
+    {
+        assert(0);
+    }
+    return pszBuff;
+}
 
 void ModifyStyleEx(HWND hwnd, DWORD dwRemove, DWORD dwAdd)
 {
@@ -176,6 +193,9 @@ BOOL OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     s_plugin.framework_window = hwnd;
 
     PF_ActOne(&s_plugin, ACTION_RECREATE, 0, 0);
+
+    LPTSTR psz = (LPTSTR)PF_ActOne(&s_plugin, ACTION_LOADSTR, IDS_APP_NAME, 0);
+    SetWindowText(hwnd, psz);
 
     return TRUE;
 }

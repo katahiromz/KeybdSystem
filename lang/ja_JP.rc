@@ -415,6 +415,7 @@ STRINGTABLE
     IDS_LEFT, "←"
     IDS_RIGHT, "→"
     IDS_SMALL, "小"
+    IDS_APP_NAME, "仮想キーボード (KeybdSystem)"
 }
 
 //////////////////////////////////////////////////////////////////////////////

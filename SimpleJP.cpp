@@ -593,6 +593,8 @@ Plugin_Act(PLUGIN *pi, UINT uAction, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
+    case ACTION_LOADSTR:
+        return (LRESULT)LoadStringDx(IDS_APP_NAME);
     }
     return 0;
 }
