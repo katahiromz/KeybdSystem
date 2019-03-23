@@ -36,7 +36,7 @@ static LPTSTR LoadStringDx(INT nID)
 
 static void MySleep(void)
 {
-    Sleep(100);
+    //Sleep(100);
 }
 
 static inline void MyKeybdEvent(WORD wVk, WORD wScan, DWORD dwFlags, ULONG_PTR dwExtra)

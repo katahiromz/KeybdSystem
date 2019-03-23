@@ -113,8 +113,17 @@ LRESULT APIENTRY PF_Driver(struct PLUGIN *pi, UINT uFunc, WPARAM wParam, LPARAM 
                 DWORD exstyle = GetWindowLong(hwnd, GWL_EXSTYLE);
                 AdjustWindowRectEx(&rc, style, FALSE, exstyle);
 
-                SetWindowPos(hwnd, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top,
+                INT cx = rc.right - rc.left;
+                INT cy = rc.bottom - rc.top;
+                SetWindowPos(hwnd, NULL, 0, 0, cx, cy,
                              SWP_NOMOVE | SWP_NOZORDER);
+                if (!bHadChild)
+                {
+                    RECT rcWork;
+                    SystemParametersInfo(SPI_GETWORKAREA, 0, &rcWork, 0);
+                    SetWindowPos(hwnd, NULL, rcWork.left, rcWork.bottom - cy, 0, 0,
+                             SWP_NOSIZE | SWP_NOZORDER);
+                }
             }
 
             pi->plugin_window = s_hChildWnd;
@@ -228,10 +237,13 @@ WinMain(HINSTANCE   hInstance,
         return 1;
     }
 
+    RECT rcWork;
+    SystemParametersInfo(SPI_GETWORKAREA, 0, &rcWork, 0);
+
     DWORD style = WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN;
     DWORD exstyle = WS_EX_TOPMOST | WS_EX_APPWINDOW | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW;
     HWND hwnd = CreateWindowEx(exstyle, s_szName, s_szName, style,
-        CW_USEDEFAULT, CW_USEDEFAULT, 0, 0,
+        rcWork.left, rcWork.bottom, 0, 0,
         NULL, NULL, hInstance, NULL);
     if (!hwnd)
     {
