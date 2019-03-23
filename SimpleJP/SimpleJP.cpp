@@ -18,6 +18,8 @@ static DWORD s_dwConv = 0;
 #define HIRA 4
 #define KATA 8
 #define SMALL 16
+#define ALT 32
+#define CTRL 64
 static DWORD s_dwStatus = 0;
 
 static LPTSTR LoadStringDx(INT nID)
@@ -407,7 +409,7 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         s_nKeybdID = IDD_HIRAGANA;
         s_dwConv = IME_CMODE_NATIVE | IME_CMODE_FULLSHAPE;
         ImeOnOff(pi, TRUE);
-        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA | SMALL);
+        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA | SMALL | ALT | CTRL);
         s_dwStatus |= HIRA;
         pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
         return;
@@ -417,7 +419,7 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         s_nKeybdID = IDD_KATAKANA;
         s_dwConv = IME_CMODE_NATIVE | IME_CMODE_FULLSHAPE | IME_CMODE_KATAKANA;
         ImeOnOff(pi, TRUE);
-        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA | SMALL);
+        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA | SMALL | ALT | CTRL);
         s_dwStatus |= KATA;
         pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
         return;
@@ -427,7 +429,7 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         s_nKeybdID = IDD_LOWER;
         s_dwConv = 0;
         ImeOnOff(pi, FALSE);
-        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA | SMALL);
+        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA | SMALL | ALT | CTRL);
         pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
         return;
     }
@@ -436,7 +438,7 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         s_nKeybdID = IDD_DIGITS;
         s_dwConv = 0;
         ImeOnOff(pi, FALSE);
-        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA | SMALL);
+        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA | SMALL | ALT | CTRL);
         pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
         return;
     }
@@ -471,6 +473,26 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
 
         s_dwConv = 0;
         ImeOnOff(pi, FALSE);
+        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
+        return;
+    }
+    if (lstrcmpi(text, LoadStringDx(IDS_CTRL)) == 0)
+    {
+        if (s_dwStatus & CTRL)
+            s_dwStatus &= ~CTRL;
+        else
+            s_dwStatus |= CTRL;
+
+        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
+        return;
+    }
+    if (lstrcmpi(text, LoadStringDx(IDS_ALT)) == 0)
+    {
+        if (s_dwStatus & ALT)
+            s_dwStatus &= ~ALT;
+        else
+            s_dwStatus |= ALT;
+
         pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
         return;
     }
@@ -540,6 +562,40 @@ void OnRefresh(PLUGIN *pi)
         // Unlock CapsLock
         keybd_event(VK_CAPITAL, 0x45, KEYEVENTF_EXTENDEDKEY, 0);
         keybd_event(VK_CAPITAL, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
+    }
+
+    HWND hwndAlt1 = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_ALT));
+    HWND hwndAlt2 = FindWindowEx(pi->plugin_window, hwndAlt1, TEXT("BUTTON"), LoadStringDx(IDS_ALT));
+    if (s_dwStatus & ALT)
+    {
+        if (hwndAlt1)
+            Button_SetCheck(hwndAlt1, BST_CHECKED);
+        if (hwndAlt2)
+            Button_SetCheck(hwndAlt2, BST_CHECKED);
+    }
+    else
+    {
+        if (hwndAlt1)
+            Button_SetCheck(hwndAlt1, BST_UNCHECKED);
+        if (hwndAlt2)
+            Button_SetCheck(hwndAlt2, BST_UNCHECKED);
+    }
+
+    HWND hwndCtrl1 = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_CTRL));
+    HWND hwndCtrl2 = FindWindowEx(pi->plugin_window, hwndCtrl1, TEXT("BUTTON"), LoadStringDx(IDS_CTRL));
+    if (s_dwStatus & CTRL)
+    {
+        if (hwndCtrl1)
+            Button_SetCheck(hwndCtrl1, BST_CHECKED);
+        if (hwndCtrl2)
+            Button_SetCheck(hwndCtrl2, BST_CHECKED);
+    }
+    else
+    {
+        if (hwndCtrl1)
+            Button_SetCheck(hwndCtrl1, BST_UNCHECKED);
+        if (hwndCtrl2)
+            Button_SetCheck(hwndCtrl2, BST_UNCHECKED);
     }
 
     HWND hwndShift1 = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_SHIFT));

@@ -166,15 +166,6 @@ LRESULT APIENTRY PF_Driver(struct PLUGIN *pi, UINT uFunc, WPARAM wParam, LPARAM 
             pi->plugin_window = s_hChildWnd = NULL;
         }
         return TRUE;
-
-    case DRIVER_FINDKEY:
-        {
-            if (!IsWindow(s_hChildWnd))
-                return 0;
-
-            LPTSTR pszText = (LPTSTR)wParam;
-            return (LRESULT)FindWindowEx(s_hChildWnd, NULL, TEXT("BUTTON"), pszText);
-        }
     }
 
     return FALSE;

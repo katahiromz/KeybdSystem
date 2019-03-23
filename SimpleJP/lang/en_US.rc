@@ -417,6 +417,8 @@ STRINGTABLE
     IDS_LEFT, "Left"
     IDS_RIGHT, "Right"
     IDS_SMALL, "Sm"
+    IDS_CTRL, "Ctrl"
+    IDS_ALT, "Alt"
 }
 
 //////////////////////////////////////////////////////////////////////////////

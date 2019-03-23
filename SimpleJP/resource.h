@@ -30,6 +30,8 @@
 #define IDS_LEFT                            114
 #define IDS_RIGHT                           115
 #define IDS_SMALL                           116
+#define IDS_CTRL                            117
+#define IDS_ALT                             118
 
 #ifdef APSTUDIO_INVOKED
     #ifndef APSTUDIO_READONLY_SYMBOLS

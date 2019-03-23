@@ -20,8 +20,7 @@ enum DRIVER_FUNCTION
 {
     DRIVER_NONE = 0,
     DRIVER_RECREATE,
-    DRIVER_DESTROY,
-    DRIVER_FINDKEY
+    DRIVER_DESTROY
 };
 
 BOOL PF_LoadOne(PLUGIN *pi, const TCHAR *pathname);
