@@ -20,6 +20,7 @@ static DWORD s_dwConv = 0;
 #define SMALL 16
 #define ALT 32
 #define CTRL 64
+#define SCROLL 128
 static DWORD s_dwStatus = 0;
 
 static LPTSTR LoadStringDx(INT nID)
@@ -409,7 +410,7 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         s_nKeybdID = IDD_HIRAGANA;
         s_dwConv = IME_CMODE_NATIVE | IME_CMODE_FULLSHAPE;
         ImeOnOff(pi, TRUE);
-        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA | SMALL | ALT | CTRL);
+        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA | SMALL | ALT | CTRL | SCROLL);
         s_dwStatus |= HIRA;
         pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
         return;
@@ -419,7 +420,7 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         s_nKeybdID = IDD_KATAKANA;
         s_dwConv = IME_CMODE_NATIVE | IME_CMODE_FULLSHAPE | IME_CMODE_KATAKANA;
         ImeOnOff(pi, TRUE);
-        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA | SMALL | ALT | CTRL);
+        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA | SMALL | ALT | CTRL | SCROLL);
         s_dwStatus |= KATA;
         pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
         return;
@@ -429,7 +430,7 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         s_nKeybdID = IDD_LOWER;
         s_dwConv = 0;
         ImeOnOff(pi, FALSE);
-        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA | SMALL | ALT | CTRL);
+        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA | SMALL | ALT | CTRL | SCROLL);
         pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
         return;
     }
@@ -438,7 +439,7 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         s_nKeybdID = IDD_DIGITS;
         s_dwConv = 0;
         ImeOnOff(pi, FALSE);
-        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA | SMALL | ALT | CTRL);
+        s_dwStatus &= ~(SHIFT | CAPS | HIRA | KATA | SMALL | ALT | CTRL | SCROLL);
         pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
         return;
     }
@@ -473,6 +474,16 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
 
         s_dwConv = 0;
         ImeOnOff(pi, FALSE);
+        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
+        return;
+    }
+    if (lstrcmpi(text, LoadStringDx(IDS_SCROLL)) == 0)
+    {
+        if (s_dwStatus & SCROLL)
+            s_dwStatus &= ~SCROLL;
+        else
+            s_dwStatus |= SCROLL;
+
         pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
         return;
     }
