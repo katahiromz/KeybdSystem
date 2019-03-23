@@ -4,6 +4,7 @@
 #include "PluginFramework.hpp"
 #include <windowsx.h>
 #include <imm.h>
+#include <unordered_map>
 #include <cassert>
 #include <strsafe.h>
 #include "resource.h"
@@ -133,6 +134,14 @@ Plugin_Unload(PLUGIN *pi, LPARAM lParam)
     return FALSE;
 }
 
+static void DoTypeBackSpace(PLUGIN *pi)
+{
+    MyKeybdEvent(VK_BACK, 0, 0, 0);
+    MySleep();
+    MyKeybdEvent(VK_BACK, 0, KEYEVENTF_KEYUP, 0);
+    MySleep();
+}
+
 static void DoTypeOneKey(PLUGIN *pi, TCHAR ch)
 {
     SHORT s = VkKeyScanEx(ch, GetKeyboardLayout(0));
@@ -192,6 +201,100 @@ static void DoTypeOneKey(PLUGIN *pi, TCHAR ch)
     MySleep();
 }
 
+static void DoTypeDakuten(PLUGIN *pi, TCHAR ch)
+{
+    typedef std::unordered_map<WCHAR, WCHAR> map_type;
+    static const map_type map =
+    {
+        // hiragana
+        {0x304B, 0x304C},
+        {0x304D, 0x304E},
+        {0x304F, 0x3050},
+        {0x3051, 0x3052},
+        {0x3053, 0x3054},
+        {0x3055, 0x3056},
+        {0x3057, 0x3058},
+        {0x3059, 0x305A},
+        {0x305B, 0x305C},
+        {0x305D, 0x305E},
+        {0x305F, 0x3060},
+        {0x3061, 0x3062},
+        {0x3064, 0x3065},
+        {0x3066, 0x3067},
+        {0x3068, 0x3069},
+        {0x306F, 0x3070},
+        {0x3072, 0x3073},
+        {0x3075, 0x3076},
+        {0x3078, 0x3079},
+        {0x307B, 0x307C},
+        {0x3046, 0x3094},
+        // katakana
+        {0x30AB, 0x30AC},
+        {0x30AD, 0x30AE},
+        {0x30AF, 0x30B0},
+        {0x30B1, 0x30B2},
+        {0x30B3, 0x30B4},
+        {0x30B5, 0x30B6},
+        {0x30B7, 0x30B8},
+        {0x30B9, 0x30BA},
+        {0x30BB, 0x30BC},
+        {0x30BD, 0x30BE},
+        {0x30BF, 0x30C0},
+        {0x30C1, 0x30C2},
+        {0x30C4, 0x30C5},
+        {0x30C6, 0x30C7},
+        {0x30C8, 0x30C9},
+        {0x30CF, 0x30D0},
+        {0x30D2, 0x30D3},
+        {0x30D5, 0x30D6},
+        {0x30D6, 0x30D9},
+        {0x30DB, 0x30DC},
+        {0x30A6, 0x30F4},
+   };
+
+    map_type::const_iterator it = map.find(ch);
+    if (it != map.end())
+    {
+        DoTypeBackSpace(pi);
+        DoTypeOneKey(pi, it->second);
+    }
+    else
+    {
+        DoTypeOneKey(pi, ch);
+    }
+}
+
+static void DoTypeHanDakuten(PLUGIN *pi, TCHAR ch)
+{
+    typedef std::unordered_map<WCHAR, WCHAR> map_type;
+    static const map_type map =
+    {
+        // hiragana
+        {0x306F, 0x3071},
+        {0x3072, 0x3074},
+        {0x3075, 0x3077},
+        {0x3078, 0x307A},
+        {0x307B, 0x307D},
+        // katakana
+        {0x30CF, 0x30D1},
+        {0x30D2, 0x30D2},
+        {0x30D5, 0x30D7},
+        {0x30D8, 0x30DA},
+        {0x30DB, 0x30DD},
+   };
+
+    map_type::const_iterator it = map.find(ch);
+    if (it != map.end())
+    {
+        DoTypeBackSpace(pi);
+        DoTypeOneKey(pi, it->second);
+    }
+    else
+    {
+        DoTypeOneKey(pi, ch);
+    }
+}
+
 static void
 OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
             HWND hwndCtl, const TCHAR *text)
@@ -216,7 +319,19 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
 
     if (text[1] == 0)
     {
-        DoTypeOneKey(pi, text[0]);
+        static WCHAR chOld = 0;
+        if (chOld && text[0] == 0x309B)
+        {
+            DoTypeDakuten(pi, text[0]);
+        }
+        else if (chOld && text[0] == 0x309C)
+        {
+            DoTypeHanDakuten(pi, text[0]);
+        }
+        else
+        {
+            DoTypeOneKey(pi, text[0]);
+        }
         if (s_dwFlags & SHIFT)
         {
             s_dwFlags &= ~SHIFT;
@@ -226,6 +341,7 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
                 s_nKeybdID = IDD_LOWER;
             pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwFlags);
         }
+        chOld = text[0];
         return;
     }
 
