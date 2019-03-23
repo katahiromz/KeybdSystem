@@ -34,6 +34,11 @@
 #define IDS_ALT                             118
 #define IDS_WIN                             119
 #define IDS_SCROLL                          120
+#define IDS_INS                             121
+#define IDS_HOME                            122
+#define IDS_END                             123
+#define IDS_PGUP                            124
+#define IDS_PGDN                            125
 
 #ifdef APSTUDIO_INVOKED
     #ifndef APSTUDIO_READONLY_SYMBOLS

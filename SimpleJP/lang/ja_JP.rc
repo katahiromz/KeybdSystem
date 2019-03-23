@@ -421,6 +421,11 @@ STRINGTABLE
     IDS_ALT, "Alt"
     IDS_WIN, "Win"
     IDS_SCROLL, "SLock"
+    IDS_INS, "Ins"
+    IDS_HOME, "Home"
+    IDS_END, "End"
+    IDS_PGUP, "PgUp"
+    IDS_PGDN, "PgDn"
 }
 
 //////////////////////////////////////////////////////////////////////////////
