@@ -552,10 +552,12 @@ Plugin_Act(PLUGIN *pi, UINT uAction, WPARAM wParam, LPARAM lParam)
         OnCommand(pi, wParam, lParam);
         break;
     case ACTION_REFRESH:
-        // Unlock CapsLock
-        keybd_event(VK_CAPITAL, 0x45, KEYEVENTF_EXTENDEDKEY, 0);
-        keybd_event(VK_CAPITAL, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
-
+        if (GetKeyState(VK_CAPITAL) & 1)
+        {
+            // Unlock CapsLock
+            keybd_event(VK_CAPITAL, 0x45, KEYEVENTF_EXTENDEDKEY, 0);
+            keybd_event(VK_CAPITAL, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
+        }
         {
             HWND hwndShift1 = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_SHIFT));
             HWND hwndShift2 = FindWindowEx(pi->plugin_window, hwndShift1, TEXT("BUTTON"), LoadStringDx(IDS_SHIFT));
