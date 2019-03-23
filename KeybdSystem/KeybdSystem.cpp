@@ -213,6 +213,12 @@ UINT OnNCHitTest(HWND hwnd, int x, int y)
     return ret;
 }
 
+void OnGetMinMaxInfo(HWND hwnd, LPMINMAXINFO lpMinMaxInfo)
+{
+    lpMinMaxInfo->ptMinTrackSize.x = 400;
+    lpMinMaxInfo->ptMinTrackSize.y = 180;
+}
+
 LRESULT CALLBACK
 WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -223,6 +229,7 @@ WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(hwnd, WM_NCHITTEST, OnNCHitTest);
         HANDLE_MSG(hwnd, WM_DESTROY, OnDestroy);
         HANDLE_MSG(hwnd, WM_SIZE, OnSize);
+        HANDLE_MSG(hwnd, WM_GETMINMAXINFO, OnGetMinMaxInfo);
     case WM_NCACTIVATE:
         DefWindowProc(hwnd, uMsg, TRUE, lParam);
         return FALSE;
