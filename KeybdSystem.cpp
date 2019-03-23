@@ -126,18 +126,7 @@ LRESULT APIENTRY PF_Driver(struct PLUGIN *pi, UINT uFunc, WPARAM wParam, LPARAM 
                     rcWnd.bottom - rcWnd.top, FALSE);
             }
 
-#define SHIFT 1
-#define CAPS 2
-            if (lParam & SHIFT)
-            {
-                HWND hwndShift = FindWindowEx(s_hChildWnd, NULL, TEXT("BUTTON"), TEXT("Shift"));
-                Button_SetCheck(hwndShift, BST_CHECKED);
-            }
-            if (lParam & CAPS)
-            {
-                HWND hwndCaps = FindWindowEx(s_hChildWnd, NULL, TEXT("BUTTON"), TEXT("Caps"));
-                Button_SetCheck(hwndCaps, BST_CHECKED);
-            }
+            PF_ActOne(pi, ACTION_REFRESH, 0, 0);
             ShowWindow(s_hChildWnd, SW_SHOW);
         }
         return TRUE;

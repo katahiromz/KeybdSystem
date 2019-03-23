@@ -2,6 +2,7 @@
 // Copyright (C) 2019 Katayama Hirofumi MZ <katayama.hirofumi.mz@gmail.com>
 // This file is public domain software.
 #include "PluginFramework.hpp"
+#include <windowsx.h>
 #include <imm.h>
 #include <cassert>
 #include <strsafe.h>
@@ -13,6 +14,8 @@ static DWORD s_dwConv = 0;
 
 #define SHIFT 1
 #define CAPS 2
+#define HIRA 4
+#define KATA 8
 static DWORD s_dwFlags = 0;
 
 static LPTSTR LoadStringDx(INT nID)
@@ -202,7 +205,10 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         if (s_dwFlags & SHIFT)
         {
             s_dwFlags &= ~SHIFT;
-            s_nKeybdID = IDD_LOWER;
+            if (s_dwFlags & CAPS)
+                s_nKeybdID = IDD_UPPER;
+            else
+                s_nKeybdID = IDD_LOWER;
             pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwFlags);
         }
         return;
@@ -221,7 +227,9 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         s_nKeybdID = IDD_HIRAGANA;
         s_dwConv = IME_CMODE_NATIVE | IME_CMODE_FULLSHAPE;
         ImeOnOff(pi, TRUE);
-        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, 0);
+        s_dwFlags &= ~(SHIFT | CAPS | HIRA | KATA);
+        s_dwFlags |= HIRA;
+        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwFlags);
         return;
     }
     if (lstrcmpi(text, LoadStringDx(IDS_KATAKANA)) == 0)
@@ -229,7 +237,9 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         s_nKeybdID = IDD_KATAKANA;
         s_dwConv = IME_CMODE_NATIVE | IME_CMODE_FULLSHAPE | IME_CMODE_KATAKANA;
         ImeOnOff(pi, TRUE);
-        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, 0);
+        s_dwFlags &= ~(SHIFT | CAPS | HIRA | KATA);
+        s_dwFlags |= KATA;
+        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwFlags);
         return;
     }
     if (lstrcmpi(text, LoadStringDx(IDS_ABC)) == 0)
@@ -237,7 +247,8 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         s_nKeybdID = IDD_LOWER;
         s_dwConv = 0;
         ImeOnOff(pi, FALSE);
-        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, 0);
+        s_dwFlags &= ~(SHIFT | CAPS | HIRA | KATA);
+        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwFlags);
         return;
     }
     if (lstrcmpi(text, LoadStringDx(IDS_DIGITS)) == 0)
@@ -245,7 +256,8 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         s_nKeybdID = IDD_DIGITS;
         s_dwConv = 0;
         ImeOnOff(pi, FALSE);
-        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, 0);
+        s_dwFlags &= ~(SHIFT | CAPS | HIRA | KATA);
+        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwFlags);
         return;
     }
     if (lstrcmpi(text, LoadStringDx(IDS_CAPS)) == 0)
@@ -309,11 +321,34 @@ Plugin_Act(PLUGIN *pi, UINT uAction, WPARAM wParam, LPARAM lParam)
         assert(0);
         break;
     case ACTION_RECREATE:
-        return pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, lParam);
+        return pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwFlags);
     case ACTION_DESTROY:
         return pi->driver(pi, DRIVER_DESTROY, wParam, lParam);
     case ACTION_COMMAND:
         OnCommand(pi, wParam, lParam);
+        break;
+    case ACTION_REFRESH:
+        if (s_dwFlags & SHIFT)
+        {
+            HWND hwndShift = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), TEXT("Shift"));
+            Button_SetCheck(hwndShift, BST_CHECKED);
+        }
+        else
+        {
+            HWND hwndShift = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), TEXT("Shift"));
+            Button_SetCheck(hwndShift, BST_UNCHECKED);
+        }
+
+        if (s_dwFlags & CAPS)
+        {
+            HWND hwndCaps = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), TEXT("Caps"));
+            Button_SetCheck(hwndCaps, BST_CHECKED);
+        }
+        else
+        {
+            HWND hwndCaps = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), TEXT("Caps"));
+            Button_SetCheck(hwndCaps, BST_UNCHECKED);
+        }
         break;
     }
     return 0;
