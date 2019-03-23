@@ -533,6 +533,69 @@ OnCommand(PLUGIN *pi, WPARAM wParam, LPARAM lParam)
     OnCommandEx(pi, pi->plugin_window, id, codeNotify, hwndCtl, szText);
 }
 
+void OnRefresh(PLUGIN *pi)
+{
+    if (GetKeyState(VK_CAPITAL) & 1)
+    {
+        // Unlock CapsLock
+        keybd_event(VK_CAPITAL, 0x45, KEYEVENTF_EXTENDEDKEY, 0);
+        keybd_event(VK_CAPITAL, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
+    }
+
+    HWND hwndShift1 = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_SHIFT));
+    HWND hwndShift2 = FindWindowEx(pi->plugin_window, hwndShift1, TEXT("BUTTON"), LoadStringDx(IDS_SHIFT));
+    if (s_dwStatus & SHIFT)
+    {
+        if (hwndShift1)
+            Button_SetCheck(hwndShift1, BST_CHECKED);
+        if (hwndShift2)
+            Button_SetCheck(hwndShift2, BST_CHECKED);
+    }
+    else
+    {
+        if (hwndShift1)
+            Button_SetCheck(hwndShift1, BST_UNCHECKED);
+        if (hwndShift2)
+            Button_SetCheck(hwndShift2, BST_UNCHECKED);
+    }
+
+    HWND hwndCaps = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_CAPS));
+    if (s_dwStatus & CAPS)
+    {
+        if (hwndCaps)
+            Button_SetCheck(hwndCaps, BST_CHECKED);
+    }
+    else
+    {
+        if (hwndCaps)
+            Button_SetCheck(hwndCaps, BST_UNCHECKED);
+    }
+
+    HWND hwndHira = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_HIRAGANA));
+    if (s_dwStatus & HIRA)
+    {
+        if (hwndHira)
+            Button_SetCheck(hwndHira, BST_CHECKED);
+    }
+    else
+    {
+        if (hwndHira)
+            Button_SetCheck(hwndHira, BST_UNCHECKED);
+    }
+
+    HWND hwndKata = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_KATAKANA));
+    if (s_dwStatus & KATA)
+    {
+        if (hwndKata)
+            Button_SetCheck(hwndKata, BST_CHECKED);
+    }
+    else
+    {
+        if (hwndKata)
+            Button_SetCheck(hwndKata, BST_UNCHECKED);
+    }
+}
+
 // API Name: Plugin_Act
 // Purpose: Act something on the plugin.
 // TODO: Act something on the plugin.
@@ -552,66 +615,7 @@ Plugin_Act(PLUGIN *pi, UINT uAction, WPARAM wParam, LPARAM lParam)
         OnCommand(pi, wParam, lParam);
         break;
     case ACTION_REFRESH:
-        if (GetKeyState(VK_CAPITAL) & 1)
-        {
-            // Unlock CapsLock
-            keybd_event(VK_CAPITAL, 0x45, KEYEVENTF_EXTENDEDKEY, 0);
-            keybd_event(VK_CAPITAL, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
-        }
-        {
-            HWND hwndShift1 = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_SHIFT));
-            HWND hwndShift2 = FindWindowEx(pi->plugin_window, hwndShift1, TEXT("BUTTON"), LoadStringDx(IDS_SHIFT));
-            if (s_dwStatus & SHIFT)
-            {
-                if (hwndShift1)
-                    Button_SetCheck(hwndShift1, BST_CHECKED);
-                if (hwndShift2)
-                    Button_SetCheck(hwndShift2, BST_CHECKED);
-            }
-            else
-            {
-                if (hwndShift1)
-                    Button_SetCheck(hwndShift1, BST_UNCHECKED);
-                if (hwndShift2)
-                    Button_SetCheck(hwndShift2, BST_UNCHECKED);
-            }
-
-            HWND hwndCaps = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_CAPS));
-            if (s_dwStatus & CAPS)
-            {
-                if (hwndCaps)
-                    Button_SetCheck(hwndCaps, BST_CHECKED);
-            }
-            else
-            {
-                if (hwndCaps)
-                    Button_SetCheck(hwndCaps, BST_UNCHECKED);
-            }
-
-            HWND hwndHira = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_HIRAGANA));
-            if (s_dwStatus & HIRA)
-            {
-                if (hwndHira)
-                    Button_SetCheck(hwndHira, BST_CHECKED);
-            }
-            else
-            {
-                if (hwndHira)
-                    Button_SetCheck(hwndHira, BST_UNCHECKED);
-            }
-
-            HWND hwndKata = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_KATAKANA));
-            if (s_dwStatus & KATA)
-            {
-                if (hwndKata)
-                    Button_SetCheck(hwndKata, BST_CHECKED);
-            }
-            else
-            {
-                if (hwndKata)
-                    Button_SetCheck(hwndKata, BST_UNCHECKED);
-            }
-        }
+        OnRefresh(pi);
         break;
     }
     return 0;
