@@ -552,14 +552,21 @@ Plugin_Act(PLUGIN *pi, UINT uAction, WPARAM wParam, LPARAM lParam)
         break;
     case ACTION_REFRESH:
         {
-            HWND hwndShift = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_SHIFT));
+            HWND hwndShift1 = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_SHIFT));
+            HWND hwndShift2 = FindWindowEx(pi->plugin_window, hwndShift1, TEXT("BUTTON"), LoadStringDx(IDS_SHIFT));
             if (s_dwStatus & SHIFT)
             {
-                Button_SetCheck(hwndShift, BST_CHECKED);
+                if (hwndShift1)
+                    Button_SetCheck(hwndShift1, BST_CHECKED);
+                if (hwndShift2)
+                    Button_SetCheck(hwndShift2, BST_CHECKED);
             }
             else
             {
-                Button_SetCheck(hwndShift, BST_UNCHECKED);
+                if (hwndShift1)
+                    Button_SetCheck(hwndShift1, BST_UNCHECKED);
+                if (hwndShift2)
+                    Button_SetCheck(hwndShift2, BST_UNCHECKED);
             }
 
             HWND hwndCaps = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_CAPS));
