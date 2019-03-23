@@ -61,15 +61,15 @@ endif()
 
 # SimpleJP.keybd
 add_library(SimpleJP SHARED SimpleJP.cpp SimpleJP.def SimpleJP_res.rc)
-target_compile_definitions(SimpleJP PRIVATE -DPLUGIN_BUILD)
+target_link_libraries(SimpleJP imm32)
 set_target_properties(SimpleJP PROPERTIES OUTPUT_NAME "SimpleJP.keybd")
 set_target_properties(SimpleJP PROPERTIES PREFIX "")
 set_target_properties(SimpleJP PROPERTIES SUFFIX "")
-target_compile_definitions(SimpleJP PRIVATE -DUNICODE -D_UNICODE)
+target_compile_definitions(SimpleJP PRIVATE -DPLUGIN_BUILD -DUNICODE -D_UNICODE)
 
 # executable
 add_executable(KeybdSystem WIN32 KeybdSystem.cpp PluginFramework.cpp)
-target_link_libraries(KeybdSystem comctl32 shlwapi)
+target_link_libraries(KeybdSystem comctl32 shlwapi imm32)
 target_compile_definitions(KeybdSystem PRIVATE -DUNICODE -D_UNICODE)
 
 ##############################################################################

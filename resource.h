@@ -16,6 +16,8 @@
 #define IDS_DIGITS                          102
 #define IDS_HIRAGANA                        103
 #define IDS_KATAKANA                        104
+#define IDS_CAPS                            105
+#define IDS_SHIFT                           106
 
 #ifdef APSTUDIO_INVOKED
     #ifndef APSTUDIO_READONLY_SYMBOLS

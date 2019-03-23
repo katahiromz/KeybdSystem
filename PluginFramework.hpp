@@ -15,6 +15,14 @@ enum ACTION
     ACTION_COMMAND
 };
 
+enum DRIVER_FUNCTION
+{
+    DRIVER_NONE = 0,
+    DRIVER_RECREATE,
+    DRIVER_DESTROY,
+    DRIVER_FINDKEY
+};
+
 BOOL PF_LoadOne(PLUGIN *pi, const TCHAR *pathname);
 INT PF_LoadAll(std::vector<PLUGIN>& pis, const TCHAR *dir);
 BOOL PF_IsLoaded(const PLUGIN *pi);

@@ -33,14 +33,6 @@ typedef LRESULT (APIENTRY *PLUGIN_ACT)(struct PLUGIN *pi, UINT uAction, WPARAM w
 
 typedef LRESULT (APIENTRY *PLUGIN_DRIVER)(struct PLUGIN *pi, UINT uFunc, WPARAM wParam, LPARAM lParam);
 
-enum DRIVER_FUNCTION
-{
-    DRIVER_NONE = 0,
-    DRIVER_RECREATE,
-    DRIVER_DESTROY,
-    DRIVER_FINDKEY
-};
-
 // NOTE: This structure must be a POD (Plain Old Data).
 typedef struct PLUGIN
 {

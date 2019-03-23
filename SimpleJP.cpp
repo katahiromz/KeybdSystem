@@ -2,14 +2,20 @@
 // Copyright (C) 2019 Katayama Hirofumi MZ <katayama.hirofumi.mz@gmail.com>
 // This file is public domain software.
 #include "PluginFramework.hpp"
+#include <imm.h>
 #include <cassert>
 #include <strsafe.h>
 #include "resource.h"
 
 static HINSTANCE s_hinstDLL;
 static UINT s_nKeybdID = IDD_LOWER;
+static DWORD s_dwConv = 0;
 
-LPTSTR LoadStringDx(INT nID)
+#define SHIFT 1
+#define CAPS 2
+static DWORD s_dwFlags = 0;
+
+static LPTSTR LoadStringDx(INT nID)
 {
     static UINT s_index = 0;
     const UINT cchBuffMax = 1024;
@@ -23,6 +29,52 @@ LPTSTR LoadStringDx(INT nID)
         assert(0);
     }
     return pszBuff;
+}
+
+static void MySleep(void)
+{
+    Sleep(100);
+}
+
+static inline void MyKeybdEvent(WORD wVk, WORD wScan, DWORD dwFlags, ULONG_PTR dwExtra)
+{
+    INPUT input;
+    input.type = INPUT_KEYBOARD;
+    input.ki.wVk = wVk;
+    input.ki.wScan = wScan;
+    input.ki.dwFlags = dwFlags;
+    input.ki.time = 0;
+    input.ki.dwExtraInfo = dwExtra;
+    SendInput(1, &input, sizeof(input));
+}
+
+#ifndef IMC_GETOPENSTATUS
+    #define IMC_GETOPENSTATUS 0x0005
+#endif
+#ifndef IMC_SETCONVERSIONMODE
+    #define IMC_SETCONVERSIONMODE 0x0002
+#endif
+
+static void ImeOnOff(PLUGIN *pi, BOOL bOn)
+{
+    HWND hwnd = GetForegroundWindow();
+    HWND hwndIME = ImmGetDefaultIMEWnd(hwnd);
+    BOOL bOpen = SendMessage(hwndIME, WM_IME_CONTROL, IMC_GETOPENSTATUS, 0);
+
+    if (bOpen != bOn)
+    {
+        if (!bOn)
+        {
+            
+        }
+        MyKeybdEvent(VK_MENU, 0, 0, 0);
+        MyKeybdEvent(VK_KANJI, 0, 0, 0);
+        MySleep();
+        MyKeybdEvent(VK_KANJI, 0, KEYEVENTF_KEYUP, 0);
+        MyKeybdEvent(VK_MENU, 0, KEYEVENTF_KEYUP, 0);
+    }
+
+    SendMessage(hwndIME, WM_IME_CONTROL, IMC_SETCONVERSIONMODE, s_dwConv);
 }
 
 #ifdef __cplusplus
@@ -78,28 +130,26 @@ Plugin_Unload(PLUGIN *pi, LPARAM lParam)
     return FALSE;
 }
 
-static void MySleep(void)
-{
-    Sleep(100);
-}
-
-static inline void MyKeybdEvent(WORD wVk, WORD wScan, DWORD dwFlags, ULONG_PTR dwExtra)
-{
-    INPUT input;
-    input.type = INPUT_KEYBOARD;
-    input.ki.wVk = wVk;
-    input.ki.wScan = wScan;
-    input.ki.dwFlags = dwFlags;
-    input.ki.time = 0;
-    input.ki.dwExtraInfo = dwExtra;
-    SendInput(1, &input, sizeof(input));
-}
-
-static void DoTypeOneKey(TCHAR ch)
+static void DoTypeOneKey(PLUGIN *pi, TCHAR ch)
 {
     SHORT s = VkKeyScanEx(ch, GetKeyboardLayout(0));
-    BYTE wVk = LOBYTE(s);
-    BYTE flags = HIBYTE(s);
+    char wVk = LOBYTE(s);
+    char flags = HIBYTE(s);
+    if (wVk == -1 && flags == -1)
+    {
+        HWND hwnd = GetForegroundWindow();
+        ImeOnOff(pi, TRUE);
+
+        MyKeybdEvent(0, ch, KEYEVENTF_UNICODE, 0);
+        MySleep();
+        MyKeybdEvent(0, ch, KEYEVENTF_UNICODE | KEYEVENTF_KEYUP, 0);
+        MySleep();
+        return;
+    }
+    else
+    {
+        ImeOnOff(pi, FALSE);
+    }
 
     if (flags & 4)
     {
@@ -136,6 +186,7 @@ static void DoTypeOneKey(TCHAR ch)
         MySleep();
         MyKeybdEvent(VK_MENU, 0, KEYEVENTF_KEYUP, 0);
     }
+    MySleep();
 }
 
 static void
@@ -146,7 +197,16 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         return;
 
     if (text[1] == 0)
-        DoTypeOneKey(text[0]);
+    {
+        DoTypeOneKey(pi, text[0]);
+        if (s_dwFlags & SHIFT)
+        {
+            s_dwFlags &= ~SHIFT;
+            s_nKeybdID = IDD_LOWER;
+            pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwFlags);
+        }
+        return;
+    }
 
     if (lstrcmpi(text, TEXT("Enter")) == 0)
     {
@@ -159,25 +219,67 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         lstrcmpi(text, LoadStringDx(IDS_HIRAGANA)) == 0)
     {
         s_nKeybdID = IDD_HIRAGANA;
+        s_dwConv = IME_CMODE_NATIVE | IME_CMODE_FULLSHAPE;
+        ImeOnOff(pi, TRUE);
         pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, 0);
         return;
     }
     if (lstrcmpi(text, LoadStringDx(IDS_KATAKANA)) == 0)
     {
         s_nKeybdID = IDD_KATAKANA;
+        s_dwConv = IME_CMODE_NATIVE | IME_CMODE_FULLSHAPE | IME_CMODE_KATAKANA;
+        ImeOnOff(pi, TRUE);
         pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, 0);
         return;
     }
     if (lstrcmpi(text, LoadStringDx(IDS_ABC)) == 0)
     {
         s_nKeybdID = IDD_LOWER;
+        s_dwConv = 0;
+        ImeOnOff(pi, FALSE);
         pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, 0);
         return;
     }
     if (lstrcmpi(text, LoadStringDx(IDS_DIGITS)) == 0)
     {
         s_nKeybdID = IDD_DIGITS;
+        s_dwConv = 0;
+        ImeOnOff(pi, FALSE);
         pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, 0);
+        return;
+    }
+    if (lstrcmpi(text, LoadStringDx(IDS_CAPS)) == 0)
+    {
+        if (s_dwFlags & CAPS)
+            s_dwFlags &= ~CAPS;
+        else
+            s_dwFlags |= CAPS;
+
+        if (s_nKeybdID == IDD_LOWER)
+            s_nKeybdID = IDD_UPPER;
+        else
+            s_nKeybdID = IDD_LOWER;
+
+        s_dwConv = 0;
+        ImeOnOff(pi, FALSE);
+        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwFlags);
+        return;
+    }
+    if (lstrcmpi(text, LoadStringDx(IDS_SHIFT)) == 0)
+    {
+        if (s_dwFlags & SHIFT)
+            s_dwFlags &= ~SHIFT;
+        else
+            s_dwFlags |= SHIFT;
+
+        if (s_nKeybdID == IDD_LOWER)
+            s_nKeybdID = IDD_UPPER;
+        else
+            s_nKeybdID = IDD_LOWER;
+
+        s_dwConv = 0;
+        ImeOnOff(pi, FALSE);
+        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwFlags);
         return;
     }
 }
