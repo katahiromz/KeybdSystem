@@ -80,14 +80,17 @@ void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
         return;
     }
 
-    KillTimer(s_hChildWnd, 999);
-
-    INT nIndex = id - 1;
-    if (0 <= nIndex && nIndex < (INT)s_plugins.size())
+    if (codeNotify == 0)
     {
-        PF_ActOne(GetCurPlugin(), ACTION_DESTROY, 0, 0);
-        s_iPlugin = nIndex;
-        PF_ActOne(GetCurPlugin(), ACTION_RECREATE, 0, 0);
+        KillTimer(s_hChildWnd, 999);
+
+        INT nIndex = id - 1;
+        if (0 <= nIndex && nIndex < (INT)s_plugins.size())
+        {
+            PF_ActOne(GetCurPlugin(), ACTION_DESTROY, 0, 0);
+            s_iPlugin = nIndex;
+            PF_ActOne(GetCurPlugin(), ACTION_RECREATE, 0, 0);
+        }
     }
 }
 
@@ -264,11 +267,16 @@ void DoShowContextMenu(HWND hwnd, INT x, INT y)
         InsertMenu(hMenu, 0xFFFFFFFF, MF_BYPOSITION, i + 1, pl.plugin_product_name);
     }
 
+    INT nCount = (INT)s_plugins.size();
+    CheckMenuRadioItem(hMenu, 0, nCount - 1, s_iPlugin, MF_BYPOSITION);
+
     SetForegroundWindow(hwnd);
     UINT uFlags = TPM_LEFTALIGN | TPM_RIGHTBUTTON | TPM_RETURNCMD;
     INT nCmd = TrackPopupMenu(hMenu, uFlags, x, y, 0, hwnd, NULL);
     PostMessage(hwnd, WM_NULL, 0, 0);
     PostMessage(hwnd, WM_COMMAND, nCmd, 0);
+
+    DestroyMenu(hMenu);
 }
 
 void OnContextMenu(HWND hwnd, HWND hwndContext, UINT xPos, UINT yPos)
