@@ -109,6 +109,11 @@ Plugin_Unload(PLUGIN *pi, LPARAM lParam)
     return FALSE;
 }
 
+static inline BOOL IsCapsLocked()
+{
+    return (GetKeyState(VK_CAPITAL) & 1);
+}
+
 static void DoTypeBackSpace(PLUGIN *pi)
 {
     MyKeybdEvent(VK_BACK, 0, 0, 0);
@@ -119,6 +124,14 @@ static void DoTypeBackSpace(PLUGIN *pi)
 
 static void DoTypeOneKey(PLUGIN *pi, TCHAR ch)
 {
+    if (IsCapsLocked())
+    {
+        if (IsCharLower(ch))
+            ch = (TCHAR)(INT_PTR)CharUpper((LPTSTR)(INT_PTR)ch);
+        else if (IsCharUpper(ch))
+            ch = (TCHAR)(INT_PTR)CharLower((LPTSTR)(INT_PTR)ch);
+    }
+
     SHORT s = VkKeyScanEx(ch, GetKeyboardLayout(0));
     char wVk = LOBYTE(s);
     char flags = HIBYTE(s);
@@ -162,6 +175,7 @@ static void DoTypeOneKey(PLUGIN *pi, TCHAR ch)
         MySleep();
         MyKeybdEvent(VK_MENU, 0, KEYEVENTF_KEYUP, 0);
     }
+
     MySleep();
 }
 
