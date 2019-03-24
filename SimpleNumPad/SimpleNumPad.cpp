@@ -63,28 +63,6 @@ static inline void MyKeybdEvent(WORD wVk, WORD wScan, DWORD dwFlags, ULONG_PTR d
     #define IMC_SETCONVERSIONMODE 0x0002
 #endif
 
-static void ImeOnOff(PLUGIN *pi, BOOL bOn)
-{
-    HWND hwnd = GetForegroundWindow();
-    HWND hwndIME = ImmGetDefaultIMEWnd(hwnd);
-    BOOL bOpen = SendMessage(hwndIME, WM_IME_CONTROL, IMC_GETOPENSTATUS, 0);
-
-    if (bOpen != bOn)
-    {
-        if (!bOn)
-        {
-            
-        }
-        MyKeybdEvent(VK_MENU, 0, 0, 0);
-        MyKeybdEvent(VK_KANJI, 0, 0, 0);
-        MySleep();
-        MyKeybdEvent(VK_KANJI, 0, KEYEVENTF_KEYUP, 0);
-        MyKeybdEvent(VK_MENU, 0, KEYEVENTF_KEYUP, 0);
-    }
-
-    SendMessage(hwndIME, WM_IME_CONTROL, IMC_SETCONVERSIONMODE, s_dwConv);
-}
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -154,18 +132,11 @@ static void DoTypeOneKey(PLUGIN *pi, TCHAR ch)
     char flags = HIBYTE(s);
     if (wVk == -1 && flags == -1)
     {
-        HWND hwnd = GetForegroundWindow();
-        ImeOnOff(pi, TRUE);
-
         MyKeybdEvent(0, ch, KEYEVENTF_UNICODE, 0);
         MySleep();
         MyKeybdEvent(0, ch, KEYEVENTF_UNICODE | KEYEVENTF_KEYUP, 0);
         MySleep();
         return;
-    }
-    else
-    {
-        ImeOnOff(pi, FALSE);
     }
 
     if (flags & 4)

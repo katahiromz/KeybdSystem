@@ -137,6 +137,10 @@ static void DoTypeOneKey(PLUGIN *pi, TCHAR ch)
     char flags = HIBYTE(s);
     if (wVk == -1 && flags == -1)
     {
+        MyKeybdEvent(0, ch, KEYEVENTF_UNICODE, 0);
+        MySleep();
+        MyKeybdEvent(0, ch, KEYEVENTF_UNICODE | KEYEVENTF_KEYUP, 0);
+        MySleep();
         return;
     }
 
