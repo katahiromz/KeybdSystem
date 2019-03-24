@@ -53,6 +53,9 @@ DialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_NCHITTEST:
         SetWindowLongPtr(hwnd, DWLP_MSGRESULT, (LONG_PTR)HTTRANSPARENT);
         return TRUE;
+    case WM_TIMER:
+        PF_ActOne(&s_plugin, ACTION_TIMER, 0, 0);
+        break;
     }
     return 0;
 }
@@ -95,7 +98,10 @@ LRESULT APIENTRY PF_Driver(struct PLUGIN *pi, UINT uFunc, WPARAM wParam, LPARAM 
             RECT rcWnd;
             GetWindowRect(hwnd, &rcWnd);
 
+            if (bHadChild)
             {
+                KillTimer(s_hChildWnd, 999);
+
                 DestroyWindow(s_hSizeGrip);
                 s_hSizeGrip = NULL;
 
@@ -154,11 +160,14 @@ LRESULT APIENTRY PF_Driver(struct PLUGIN *pi, UINT uFunc, WPARAM wParam, LPARAM 
 
             PF_ActOne(pi, ACTION_REFRESH, 0, 0);
             ShowWindow(s_hChildWnd, SW_SHOW);
+            SetTimer(s_hChildWnd, 999, 100, NULL);
         }
         return TRUE;
 
     case DRIVER_DESTROY:
         {
+            KillTimer(s_hChildWnd, 999);
+
             DestroyWindow(s_hSizeGrip);
             s_hSizeGrip = NULL;
 

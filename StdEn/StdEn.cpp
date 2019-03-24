@@ -11,7 +11,6 @@
 
 static HINSTANCE s_hinstDLL;
 static UINT s_nKeybdID = IDD_NORMAL;
-static DWORD s_dwConv = 0;
 
 #define SHIFT 1
 #define CAPS 2
@@ -54,35 +53,6 @@ static inline void MyKeybdEvent(WORD wVk, WORD wScan, DWORD dwFlags, ULONG_PTR d
     input.ki.time = 0;
     input.ki.dwExtraInfo = dwExtra;
     SendInput(1, &input, sizeof(input));
-}
-
-#ifndef IMC_GETOPENSTATUS
-    #define IMC_GETOPENSTATUS 0x0005
-#endif
-#ifndef IMC_SETCONVERSIONMODE
-    #define IMC_SETCONVERSIONMODE 0x0002
-#endif
-
-static void ImeOnOff(PLUGIN *pi, BOOL bOn)
-{
-    HWND hwnd = GetForegroundWindow();
-    HWND hwndIME = ImmGetDefaultIMEWnd(hwnd);
-    BOOL bOpen = SendMessage(hwndIME, WM_IME_CONTROL, IMC_GETOPENSTATUS, 0);
-
-    if (bOpen != bOn)
-    {
-        if (!bOn)
-        {
-            
-        }
-        MyKeybdEvent(VK_MENU, 0, 0, 0);
-        MyKeybdEvent(VK_KANJI, 0, 0, 0);
-        MySleep();
-        MyKeybdEvent(VK_KANJI, 0, KEYEVENTF_KEYUP, 0);
-        MyKeybdEvent(VK_MENU, 0, KEYEVENTF_KEYUP, 0);
-    }
-
-    SendMessage(hwndIME, WM_IME_CONTROL, IMC_SETCONVERSIONMODE, s_dwConv);
 }
 
 #ifdef __cplusplus
@@ -154,31 +124,20 @@ static void DoTypeOneKey(PLUGIN *pi, TCHAR ch)
     char flags = HIBYTE(s);
     if (wVk == -1 && flags == -1)
     {
-        HWND hwnd = GetForegroundWindow();
-        ImeOnOff(pi, TRUE);
-
-        MyKeybdEvent(0, ch, KEYEVENTF_UNICODE, 0);
-        MySleep();
-        MyKeybdEvent(0, ch, KEYEVENTF_UNICODE | KEYEVENTF_KEYUP, 0);
-        MySleep();
         return;
     }
-    else
-    {
-        ImeOnOff(pi, FALSE);
-    }
 
-    if (flags & 4)
+    if ((flags & 4) || (s_dwStatus & ALT))
     {
         MyKeybdEvent(VK_MENU, 0, 0, 0);
         MySleep();
     }
-    if (flags & 2)
+    if ((flags & 2) || (s_dwStatus & CTRL))
     {
         MyKeybdEvent(VK_CONTROL, 0, 0, 0);
         MySleep();
     }
-    if (flags & 1)
+    if ((flags & 1) || (s_dwStatus & SHIFT))
     {
         MyKeybdEvent(VK_SHIFT, 0, 0, 0);
         MySleep();
@@ -188,17 +147,17 @@ static void DoTypeOneKey(PLUGIN *pi, TCHAR ch)
     MySleep();
     MyKeybdEvent(wVk, 0, KEYEVENTF_KEYUP, 0);
 
-    if (flags & 1)
+    if ((flags & 1) || (s_dwStatus & SHIFT))
     {
         MySleep();
         MyKeybdEvent(VK_SHIFT, 0, KEYEVENTF_KEYUP, 0);
     }
-    if (flags & 2)
+    if ((flags & 2) || (s_dwStatus & CTRL))
     {
         MySleep();
         MyKeybdEvent(VK_CONTROL, 0, KEYEVENTF_KEYUP, 0);
     }
-    if (flags & 4)
+    if ((flags & 4) || (s_dwStatus & ALT))
     {
         MySleep();
         MyKeybdEvent(VK_MENU, 0, KEYEVENTF_KEYUP, 0);
@@ -237,35 +196,15 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
     if (text[1] == 0 || lstrcmpi(text, TEXT("&&")) == 0)
     {
         DoTypeOneKey(pi, text[0]);
-        if (s_dwStatus & (SHIFT | CTRL | ALT))
-        {
-            s_dwStatus &= ~(SHIFT | CTRL | ALT);
-            if (s_dwStatus & CAPS)
-                s_nKeybdID = IDD_CAPITAL;
-            else
-                s_nKeybdID = IDD_NORMAL;
-            pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
-        }
+        s_dwStatus &= ~(SHIFT | CTRL | ALT);
         return;
     }
 
     if (CheckButtonText(text, IDS_ENTER, VK_RETURN))
         return;
-    if (lstrcmpi(text, LoadStringDx(IDS_CAPS)) == 0)
+    if (CheckButtonText(text, IDS_CAPS, VK_CAPITAL))
     {
-        if (s_dwStatus & CAPS)
-            s_dwStatus &= ~CAPS;
-        else
-            s_dwStatus |= CAPS;
-
-        if (s_dwStatus & CAPS)
-            s_nKeybdID = IDD_CAPITAL;
-        else
-            s_nKeybdID = IDD_NORMAL;
-
-        s_dwConv = 0;
-        ImeOnOff(pi, FALSE);
-        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
+        s_dwStatus &= ~SHIFT;
         return;
     }
     if (lstrcmpi(text, LoadStringDx(IDS_SHIFT)) == 0)
@@ -274,25 +213,6 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
             s_dwStatus &= ~SHIFT;
         else
             s_dwStatus |= SHIFT;
-
-        if (s_dwStatus & CAPS)
-        {
-            if (s_dwStatus & SHIFT)
-                s_nKeybdID = IDD_CAPITAL_SHIFTED;
-            else
-                s_nKeybdID = IDD_CAPITAL;
-        }
-        else
-        {
-            if (s_dwStatus & SHIFT)
-                s_nKeybdID = IDD_SHIFTED;
-            else
-                s_nKeybdID = IDD_NORMAL;
-        }
-
-        s_dwConv = 0;
-        ImeOnOff(pi, FALSE);
-        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
         return;
     }
     if (lstrcmpi(text, LoadStringDx(IDS_SCROLL)) == 0)
@@ -301,8 +221,6 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
             s_dwStatus &= ~SCROLL;
         else
             s_dwStatus |= SCROLL;
-
-        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
         return;
     }
     if (lstrcmpi(text, LoadStringDx(IDS_CTRL)) == 0)
@@ -311,8 +229,6 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
             s_dwStatus &= ~CTRL;
         else
             s_dwStatus |= CTRL;
-
-        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
         return;
     }
     if (lstrcmpi(text, LoadStringDx(IDS_ALT)) == 0)
@@ -321,8 +237,6 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
             s_dwStatus &= ~ALT;
         else
             s_dwStatus |= ALT;
-
-        pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
         return;
     }
     if (CheckButtonText(text, IDS_BS, VK_BACK))
@@ -392,11 +306,25 @@ OnCommand(PLUGIN *pi, WPARAM wParam, LPARAM lParam)
 
 void OnRefresh(PLUGIN *pi)
 {
+    UINT nNewKeybdID = 0;
     if (GetKeyState(VK_CAPITAL) & 1)
     {
-        // Unlock CapsLock
-        keybd_event(VK_CAPITAL, 0x45, KEYEVENTF_EXTENDEDKEY, 0);
-        keybd_event(VK_CAPITAL, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
+        if (s_dwStatus & SHIFT)
+            nNewKeybdID = IDD_CAPITAL_SHIFTED;
+        else
+            nNewKeybdID = IDD_CAPITAL;
+    }
+    else
+    {
+        if (s_dwStatus & SHIFT)
+            nNewKeybdID = IDD_SHIFTED;
+        else
+            nNewKeybdID = IDD_NORMAL;
+    }
+    if (s_nKeybdID != nNewKeybdID)
+    {
+        s_nKeybdID = nNewKeybdID;
+        pi->driver(pi, DRIVER_RECREATE, nNewKeybdID, s_dwStatus);
     }
 
     HWND hwndAlt1 = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_ALT));
@@ -451,13 +379,15 @@ void OnRefresh(PLUGIN *pi)
     }
 
     HWND hwndCaps = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_CAPS));
-    if (s_dwStatus & CAPS)
+    if (GetKeyState(VK_CAPITAL) & 1)
     {
+        s_dwStatus |= CAPS;
         if (hwndCaps)
             Button_SetCheck(hwndCaps, BST_CHECKED);
     }
     else
     {
+        s_dwStatus &= ~CAPS;
         if (hwndCaps)
             Button_SetCheck(hwndCaps, BST_UNCHECKED);
     }
@@ -482,6 +412,9 @@ Plugin_Act(PLUGIN *pi, UINT uAction, WPARAM wParam, LPARAM lParam)
         OnCommand(pi, wParam, lParam);
         break;
     case ACTION_REFRESH:
+        OnRefresh(pi);
+        break;
+    case ACTION_TIMER:
         OnRefresh(pi);
         break;
     }
