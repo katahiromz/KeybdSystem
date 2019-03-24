@@ -1,4 +1,4 @@
-// StdEn.cpp --- KeybdPlugin StdEn keyboard
+// FullEn.cpp --- KeybdPlugin FullEn keyboard
 // Copyright (C) 2019 Katayama Hirofumi MZ <katayama.hirofumi.mz@gmail.com>
 // This file is public domain software.
 #include "PluginFramework.hpp"
@@ -87,8 +87,8 @@ Plugin_Load(PLUGIN *pi, LPARAM lParam)
     }
 
     pi->plugin_version = 2;
-    StringCbCopy(pi->plugin_product_name, sizeof(pi->plugin_product_name), TEXT("StdEn"));
-    StringCbCopy(pi->plugin_filename, sizeof(pi->plugin_filename), TEXT("StdEn.keybd"));
+    StringCbCopy(pi->plugin_product_name, sizeof(pi->plugin_product_name), TEXT("FullEn"));
+    StringCbCopy(pi->plugin_filename, sizeof(pi->plugin_filename), TEXT("FullEn.keybd"));
     StringCbCopy(pi->plugin_company, sizeof(pi->plugin_company), TEXT("Katayama Hirofumi MZ"));
     StringCbCopy(pi->plugin_copyright, sizeof(pi->plugin_copyright), TEXT("Copyright (C) 2019 Katayama Hirofumi MZ"));
     pi->plugin_instance = s_hinstDLL;
@@ -308,6 +308,8 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         return;
     if (CheckButtonText(text, IDS_BREAK, VK_PAUSE))
         return;
+    if (CheckButtonText(text, IDS_NUM, VK_NUMLOCK))
+        return;
 }
 
 static void
@@ -326,19 +328,39 @@ OnCommand(PLUGIN *pi, WPARAM wParam, LPARAM lParam)
 void OnRefresh(PLUGIN *pi)
 {
     UINT nNewKeybdID = 0;
-    if (IsCapsLocked())
+    if (IsNumLocked())
     {
-        if (s_dwStatus & SHIFT)
-            nNewKeybdID = IDD_CAPITAL_SHIFTED;
+        if (IsCapsLocked())
+        {
+            if (s_dwStatus & SHIFT)
+                nNewKeybdID = IDD_NUM_CAPITAL_SHIFTED;
+            else
+                nNewKeybdID = IDD_NUM_CAPITAL;
+        }
         else
-            nNewKeybdID = IDD_CAPITAL;
+        {
+            if (s_dwStatus & SHIFT)
+                nNewKeybdID = IDD_NUM_SHIFTED;
+            else
+                nNewKeybdID = IDD_NUM_NORMAL;
+        }
     }
     else
     {
-        if (s_dwStatus & SHIFT)
-            nNewKeybdID = IDD_SHIFTED;
+        if (IsCapsLocked())
+        {
+            if (s_dwStatus & SHIFT)
+                nNewKeybdID = IDD_CAPITAL_SHIFTED;
+            else
+                nNewKeybdID = IDD_CAPITAL;
+        }
         else
-            nNewKeybdID = IDD_NORMAL;
+        {
+            if (s_dwStatus & SHIFT)
+                nNewKeybdID = IDD_SHIFTED;
+            else
+                nNewKeybdID = IDD_NORMAL;
+        }
     }
     if (s_nKeybdID != nNewKeybdID)
     {
@@ -410,7 +432,6 @@ void OnRefresh(PLUGIN *pi)
         if (hwndCaps)
             Button_SetCheck(hwndCaps, BST_UNCHECKED);
     }
-
 
     HWND hwndNum = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_NUM));
     if (IsNumLocked())

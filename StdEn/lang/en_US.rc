@@ -11,7 +11,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_DEFAULT
 IDD_NORMAL DIALOG 0, 0, 465, 155
 CAPTION "Alphabet"
 STYLE DS_CONTROL | WS_CHILD | WS_CAPTION
-FONT 10, "Tahoma"
+FONT 9, "Tahoma"
 {
     PUSHBUTTON "Esc", IDC_STATIC, 0, 0, 25, 25
     PUSHBUTTON "F1", IDC_STATIC, 45, 0, 25, 25
@@ -105,7 +105,7 @@ FONT 10, "Tahoma"
 IDD_CAPITAL DIALOG 0, 0, 465, 155
 CAPTION "Alphabet (Capital)"
 STYLE DS_CONTROL | WS_CHILD | WS_CAPTION
-FONT 10, "Tahoma"
+FONT 9, "Tahoma"
 {
     PUSHBUTTON "Esc", IDC_STATIC, 0, 0, 25, 25
     PUSHBUTTON "F1", IDC_STATIC, 45, 0, 25, 25
@@ -199,7 +199,7 @@ FONT 10, "Tahoma"
 IDD_SHIFTED DIALOG 0, 0, 465, 155
 CAPTION "Alphabet (Shifted)"
 STYLE DS_CONTROL | WS_CHILD | WS_CAPTION
-FONT 10, "Tahoma"
+FONT 9, "Tahoma"
 {
     PUSHBUTTON "Esc", IDC_STATIC, 0, 0, 25, 25
     PUSHBUTTON "F1", IDC_STATIC, 45, 0, 25, 25
@@ -293,7 +293,7 @@ FONT 10, "Tahoma"
 IDD_CAPITAL_SHIFTED DIALOG 0, 0, 465, 155
 CAPTION "Alphabet (Capital, Shifted)"
 STYLE DS_CONTROL | WS_CHILD | WS_CAPTION
-FONT 10, "Tahoma"
+FONT 9, "Tahoma"
 {
     PUSHBUTTON "Esc", IDC_STATIC, 0, 0, 25, 25
     PUSHBUTTON "F1", IDC_STATIC, 45, 0, 25, 25
@@ -435,6 +435,7 @@ STRINGTABLE
     IDS_APPS, "Apps"
     IDS_PRINT, "PrSc"
     IDS_BREAK, "Brk"
+    IDS_NUM, "Num"
 }
 
 //////////////////////////////////////////////////////////////////////////////

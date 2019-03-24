@@ -187,7 +187,7 @@ BOOL OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     RemoveMenu(hSysMenu, SC_MAXIMIZE, MF_BYCOMMAND);
     RemoveMenu(hSysMenu, SC_MINIMIZE, MF_BYCOMMAND);
 
-    if (!PF_LoadOne(&s_plugin, TEXT("EasyEn.keybd")))
+    if (!PF_LoadOne(&s_plugin, TEXT("FullEn.keybd")))
         return FALSE;
 
     s_plugin.framework_window = hwnd;
