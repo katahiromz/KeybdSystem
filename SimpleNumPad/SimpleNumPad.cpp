@@ -387,6 +387,7 @@ Plugin_Act(PLUGIN *pi, UINT uAction, WPARAM wParam, LPARAM lParam)
     case ACTION_RECREATE:
         return pi->driver(pi, DRIVER_RECREATE, s_nKeybdID, s_dwStatus);
     case ACTION_DESTROY:
+        s_nKeybdID = IDD_NUMPAD;
         return pi->driver(pi, DRIVER_DESTROY, wParam, lParam);
     case ACTION_COMMAND:
         OnCommand(pi, wParam, lParam);

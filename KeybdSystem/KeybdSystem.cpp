@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <windowsx.h>
 #include <commctrl.h>
+#include <shlwapi.h>
 #include <cassert>
 #include "MSmoothLayout.hpp"
 #include "PluginFramework.hpp"
@@ -13,7 +14,15 @@ static HWND s_hChildWnd = NULL;
 static HWND s_hSizeGrip = NULL;
 static MSmoothLayout s_layout;
 static HWND s_hwndTarget = NULL;
-static PLUGIN s_plugin;
+static std::vector<PLUGIN> s_plugins;
+static INT s_iPlugin = 0;
+
+static inline PLUGIN *GetCurPlugin(void)
+{
+    if (s_iPlugin < s_plugins.size())
+        return &s_plugins[s_iPlugin];
+    return NULL;
+}
 
 static LPTSTR LoadStringDx(INT nID)
 {
@@ -54,7 +63,10 @@ DialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         SetWindowLongPtr(hwnd, DWLP_MSGRESULT, (LONG_PTR)HTTRANSPARENT);
         return TRUE;
     case WM_TIMER:
-        PF_ActOne(&s_plugin, ACTION_TIMER, 0, 0);
+        PF_ActOne(GetCurPlugin(), ACTION_TIMER, 0, 0);
+        break;
+    case WM_CONTEXTMENU:
+        PostMessage(hwndParent, uMsg, wParam, lParam);
         break;
     }
     return 0;
@@ -62,7 +74,21 @@ DialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
-    PF_ActOne(&s_plugin, ACTION_COMMAND, MAKEWPARAM(id, codeNotify), (LPARAM)hwndCtl);
+    if (hwndCtl)
+    {
+        PF_ActOne(GetCurPlugin(), ACTION_COMMAND, MAKEWPARAM(id, codeNotify), (LPARAM)hwndCtl);
+        return;
+    }
+
+    KillTimer(s_hChildWnd, 999);
+
+    INT nIndex = id - 1;
+    if (0 <= nIndex && nIndex < (INT)s_plugins.size())
+    {
+        PF_ActOne(GetCurPlugin(), ACTION_DESTROY, 0, 0);
+        s_iPlugin = nIndex;
+        PF_ActOne(GetCurPlugin(), ACTION_RECREATE, 0, 0);
+    }
 }
 
 void OnSize(HWND hwnd, UINT state, int cx, int cy)
@@ -83,7 +109,7 @@ void OnSize(HWND hwnd, UINT state, int cx, int cy)
 
 LRESULT APIENTRY PF_Driver(struct PLUGIN *pi, UINT uFunc, WPARAM wParam, LPARAM lParam)
 {
-    HWND hwnd = s_plugin.framework_window;
+    HWND hwnd = GetCurPlugin()->framework_window;
     assert(IsWindow(hwnd));
 
     switch (uFunc)
@@ -98,10 +124,10 @@ LRESULT APIENTRY PF_Driver(struct PLUGIN *pi, UINT uFunc, WPARAM wParam, LPARAM 
             RECT rcWnd;
             GetWindowRect(hwnd, &rcWnd);
 
+            KillTimer(s_hChildWnd, 999);
+
             if (bHadChild)
             {
-                KillTimer(s_hChildWnd, 999);
-
                 DestroyWindow(s_hSizeGrip);
                 s_hSizeGrip = NULL;
 
@@ -109,7 +135,8 @@ LRESULT APIENTRY PF_Driver(struct PLUGIN *pi, UINT uFunc, WPARAM wParam, LPARAM 
                 pi->plugin_window = s_hChildWnd = NULL;
             }
 
-            s_hChildWnd = CreateDialog(s_plugin.plugin_instance, MAKEINTRESOURCE(wParam),
+            s_hChildWnd = CreateDialog(GetCurPlugin()->plugin_instance,
+                                       MAKEINTRESOURCE(wParam),
                                        hwnd, DialogProc);
             if (!s_hChildWnd)
                 return FALSE;
@@ -187,12 +214,20 @@ BOOL OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     RemoveMenu(hSysMenu, SC_MAXIMIZE, MF_BYCOMMAND);
     RemoveMenu(hSysMenu, SC_MINIMIZE, MF_BYCOMMAND);
 
-    if (!PF_LoadOne(&s_plugin, TEXT("FullEn.keybd")))
+    TCHAR szPath[MAX_PATH];
+    GetModuleFileName(NULL, szPath, ARRAYSIZE(szPath));
+    *PathFindFileName(szPath) = 0;
+    PathRemoveBackslash(szPath);
+
+    if (!PF_LoadAll(s_plugins, szPath))
         return FALSE;
 
-    s_plugin.framework_window = hwnd;
+    for (size_t i = 0; i < s_plugins.size(); ++i)
+    {
+        s_plugins[i].framework_window = hwnd;
+    }
 
-    PF_ActOne(&s_plugin, ACTION_RECREATE, 0, 0);
+    PF_ActOne(GetCurPlugin(), ACTION_RECREATE, 0, 0);
 
     SetWindowText(hwnd, LoadStringDx(IDS_APP_NAME));
 
@@ -201,7 +236,7 @@ BOOL OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
 void OnDestroy(HWND hwnd)
 {
-    PF_UnloadOne(&s_plugin);
+    PF_UnloadAll(s_plugins);
     PostQuitMessage(0);
 }
 
@@ -219,6 +254,41 @@ void OnGetMinMaxInfo(HWND hwnd, LPMINMAXINFO lpMinMaxInfo)
     lpMinMaxInfo->ptMinTrackSize.y = 180;
 }
 
+void DoShowContextMenu(HWND hwnd, INT x, INT y)
+{
+    HMENU hMenu = CreatePopupMenu();
+
+    for (size_t i = 0; i < s_plugins.size(); ++i)
+    {
+        PLUGIN& pl = s_plugins[i];
+        InsertMenu(hMenu, 0xFFFFFFFF, MF_BYPOSITION, i + 1, pl.plugin_product_name);
+    }
+
+    SetForegroundWindow(hwnd);
+    UINT uFlags = TPM_LEFTALIGN | TPM_RIGHTBUTTON | TPM_RETURNCMD;
+    INT nCmd = TrackPopupMenu(hMenu, uFlags, x, y, 0, hwnd, NULL);
+    PostMessage(hwnd, WM_NULL, 0, 0);
+    PostMessage(hwnd, WM_COMMAND, nCmd, 0);
+}
+
+void OnContextMenu(HWND hwnd, HWND hwndContext, UINT xPos, UINT yPos)
+{
+    if (hwndContext == s_hChildWnd)
+        return;
+
+    DoShowContextMenu(hwnd, xPos, yPos);
+}
+
+void OnNCRButtonDown(HWND hwnd, BOOL fDoubleClick, int x, int y, UINT codeHitTest)
+{
+    if (codeHitTest != HTCLIENT)
+    {
+        FORWARD_WM_NCRBUTTONDOWN(hwnd, fDoubleClick, x, y, codeHitTest, DefWindowProc);
+    }
+
+    DoShowContextMenu(hwnd, x, y);
+}
+
 LRESULT CALLBACK
 WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -230,6 +300,8 @@ WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(hwnd, WM_DESTROY, OnDestroy);
         HANDLE_MSG(hwnd, WM_SIZE, OnSize);
         HANDLE_MSG(hwnd, WM_GETMINMAXINFO, OnGetMinMaxInfo);
+        HANDLE_MSG(hwnd, WM_CONTEXTMENU, OnContextMenu);
+        HANDLE_MSG(hwnd, WM_NCRBUTTONDOWN, OnNCRButtonDown);
     case WM_NCACTIVATE:
         DefWindowProc(hwnd, uMsg, TRUE, lParam);
         return FALSE;
