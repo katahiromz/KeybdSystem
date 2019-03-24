@@ -299,7 +299,7 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         return;
     if (CheckButtonText(text, IDS_ESC, VK_ESCAPE))
         return;
-    if (CheckButtonText(text, IDS_PRINT, VK_PRINT))
+    if (CheckButtonText(text, IDS_PRINT, VK_SNAPSHOT))
         return;
     if (CheckButtonText(text, IDS_BREAK, VK_PAUSE))
         return;
