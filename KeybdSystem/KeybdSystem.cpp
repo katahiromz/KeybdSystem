@@ -284,16 +284,23 @@ void OnContextMenu(HWND hwnd, HWND hwndContext, UINT xPos, UINT yPos)
     if (hwndContext == s_hChildWnd)
         return;
 
+    UINT ret = FORWARD_WM_NCHITTEST(hwnd, xPos, yPos, DefWindowProc);
+    if (ret == HTCAPTION)
+    {
+        FORWARD_WM_CONTEXTMENU(hwnd, hwndContext, xPos, yPos, DefWindowProc);
+        return;
+    }
     DoShowContextMenu(hwnd, xPos, yPos);
 }
 
 void OnNCRButtonDown(HWND hwnd, BOOL fDoubleClick, int x, int y, UINT codeHitTest)
 {
-    if (codeHitTest != HTCLIENT)
+    UINT ret = FORWARD_WM_NCHITTEST(hwnd, x, y, DefWindowProc);
+    if (ret == HTCAPTION)
     {
         FORWARD_WM_NCRBUTTONDOWN(hwnd, fDoubleClick, x, y, codeHitTest, DefWindowProc);
+        return;
     }
-
     DoShowContextMenu(hwnd, x, y);
 }
 
