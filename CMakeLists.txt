@@ -59,6 +59,6 @@ endif()
 
 ##############################################################################
 
-subdirs(KeybdSystem StdEn SimpleJP SimpleNumPad EasyEn FullEn)
+subdirs(KeybdSystem StdEn SimpleJP FullJP SimpleNumPad EasyEn FullEn)
 
 ##############################################################################
