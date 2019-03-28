@@ -206,13 +206,15 @@ static void DoTypeOneChar(PLUGIN *pi, TCHAR ch)
     DoTypeOneKey(pi, wVk, flags);
 }
 
-static BOOL CheckButtonText(const TCHAR *text, UINT ids, UINT vk)
+static BOOL
+CheckButtonText(const TCHAR *text, UINT ids, UINT vk, INT clear = (ALT | CTRL | SHIFT))
 {
     if (lstrcmpi(text, LoadStringDx(ids)) == 0)
     {
         MyKeybdEvent(vk, 0, 0, 0);
         MySleep();
         MyKeybdEvent(vk, 0, KEYEVENTF_KEYUP, 0);
+        s_dwStatus &= ~clear;
         return TRUE;
     }
     return FALSE;
@@ -250,10 +252,18 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
     }
     if (lstrcmpi(text, LoadStringDx(IDS_SHIFT)) == 0)
     {
-        if (s_dwStatus & SHIFT)
-            s_dwStatus &= ~SHIFT;
+        if (s_dwStatus & ALT)
+        {
+            DoTypeOneKey(pi, VK_SHIFT, 4);
+            s_dwStatus &= ~(SHIFT | CTRL | ALT);
+        }
         else
-            s_dwStatus |= SHIFT;
+        {
+            if (s_dwStatus & SHIFT)
+                s_dwStatus &= ~SHIFT;
+            else
+                s_dwStatus |= SHIFT;
+        }
         return;
     }
     if (lstrcmpi(text, LoadStringDx(IDS_SCROLL)) == 0)
@@ -289,46 +299,11 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
     {
         if (s_dwStatus & ALT)
         {
-            MyKeybdEvent(VK_MENU, 0, 0, 0);
-            MySleep();
-        }
-        if (s_dwStatus & CTRL)
-        {
-            MyKeybdEvent(VK_CONTROL, 0, 0, 0);
-            MySleep();
-        }
-        if (s_dwStatus & SHIFT)
-        {
-            MyKeybdEvent(VK_SHIFT, 0, 0, 0);
-            MySleep();
-        }
-        if (s_dwStatus & ALT)
-        {
-            MyKeybdEvent(VK_OEM_COPY, 0, 0, 0);
-            MySleep();
-            MyKeybdEvent(VK_OEM_COPY, 0, KEYEVENTF_KEYUP, 0);
+            DoTypeOneKey(pi, VK_OEM_COPY, 0);
         }
         else
         {
-
-            MyKeybdEvent(VK_KANA, 0, 0, 0);
-            MySleep();
-            MyKeybdEvent(VK_KANA, 0, KEYEVENTF_KEYUP, 0);
-        }
-        if (s_dwStatus & SHIFT)
-        {
-            MyKeybdEvent(VK_SHIFT, 0, KEYEVENTF_KEYUP, 0);
-            MySleep();
-        }
-        if (s_dwStatus & CTRL)
-        {
-            MyKeybdEvent(VK_CONTROL, 0, KEYEVENTF_KEYUP, 0);
-            MySleep();
-        }
-        if (s_dwStatus & ALT)
-        {
-            MyKeybdEvent(VK_MENU, 0, KEYEVENTF_KEYUP, 0);
-            MySleep();
+            DoTypeOneKey(pi, VK_KANA, 0);
         }
         s_dwStatus &= ~(SHIFT | CTRL | ALT);
         return;

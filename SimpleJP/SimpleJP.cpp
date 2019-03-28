@@ -305,13 +305,15 @@ static void DoTypeHanDakuten(PLUGIN *pi, TCHAR ch)
     }
 }
 
-static BOOL CheckButtonText(const TCHAR *text, UINT ids, UINT vk)
+static BOOL
+CheckButtonText(const TCHAR *text, UINT ids, UINT vk, INT clear = (ALT | CTRL | SHIFT))
 {
     if (lstrcmpi(text, LoadStringDx(ids)) == 0)
     {
         MyKeybdEvent(vk, 0, 0, 0);
         MySleep();
         MyKeybdEvent(vk, 0, KEYEVENTF_KEYUP, 0);
+        s_dwStatus &= ~clear;
         return TRUE;
     }
     return FALSE;
