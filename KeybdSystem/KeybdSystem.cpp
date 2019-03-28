@@ -3,6 +3,7 @@
 #include <commctrl.h>
 #include <shlwapi.h>
 #include <algorithm>
+#include <cstdio>
 #include <cassert>
 #include <strsafe.h>
 #include "MSmoothLayout.hpp"
@@ -51,9 +52,131 @@ void ModifyStyleEx(HWND hwnd, DWORD dwRemove, DWORD dwAdd)
     SetWindowLong(hwnd, GWL_EXSTYLE, exstyle);
 }
 
+LRESULT OnNotify(HWND hwnd, int idFrom, LPNMHDR pnmhdr)
+{
+    if (pnmhdr->code == NM_CUSTOMDRAW && pnmhdr->hwndFrom)
+    {
+        if (LRESULT ret = PF_ActOne(GetCurPlugin(), ACTION_CUSTOMDRAW,
+                                    (WPARAM)idFrom, (LPARAM)pnmhdr))
+        {
+            return ret;
+        }
+
+        NMCUSTOMDRAW *pcd = (NMCUSTOMDRAW *)pnmhdr;
+        HWND hwndFrom = pnmhdr->hwndFrom;
+
+        TCHAR szText[64];
+        GetWindowText(hwndFrom, szText, 64);
+
+        DWORD style = GetWindowStyle(hwndFrom);
+        if ((style & BS_TYPEMASK) == BS_PUSHBUTTON ||
+            (style & BS_TYPEMASK) == BS_DEFPUSHBUTTON)
+        {
+        }
+        else if ((style & BS_PUSHLIKE) && 
+            ((style & BS_TYPEMASK) == BS_AUTOCHECKBOX ||
+             (style & BS_TYPEMASK) == BS_AUTORADIOBUTTON ||
+             (style & BS_TYPEMASK) == BS_CHECKBOX ||
+             (style & BS_TYPEMASK) == BS_RADIOBUTTON))
+        {
+        }
+        else
+        {
+            return CDRF_DODEFAULT;
+        }
+
+        RECT rc;
+        GetClientRect(hwndFrom, &rc);
+
+        switch (pcd->dwDrawStage)
+        {
+        case CDDS_PREERASE:
+        case CDDS_ITEMPREERASE:
+            if (pcd->uItemState & CDIS_HOT)
+            {
+                if (pcd->uItemState & CDIS_SELECTED)
+                    DrawFrameControl(pcd->hdc, &rc, DFC_BUTTON, DFCS_BUTTONPUSH | DFCS_PUSHED | DFCS_HOT);
+                else
+                    DrawFrameControl(pcd->hdc, &rc, DFC_BUTTON, DFCS_BUTTONPUSH | DFCS_HOT);
+            }
+            else
+            {
+                if (pcd->uItemState & CDIS_SELECTED)
+                    DrawFrameControl(pcd->hdc, &rc, DFC_BUTTON, DFCS_BUTTONPUSH | DFCS_PUSHED);
+                else
+                    DrawFrameControl(pcd->hdc, &rc, DFC_BUTTON, DFCS_BUTTONPUSH);
+            }
+            return CDRF_NOTIFYPOSTERASE;
+        case CDDS_POSTERASE:
+        case CDDS_ITEMPOSTERASE:
+            return CDRF_SKIPDEFAULT;
+        case CDDS_PREPAINT:
+        case CDDS_ITEMPREPAINT:
+            {
+                HFONT hFont = GetWindowFont(hwnd);
+                assert(hFont);
+
+                SIZE siz;
+                siz.cx = (rc.right - rc.left) * 8 / 10;
+                siz.cy = (rc.bottom - rc.top) * 8 / 10;
+
+                LOGFONT lf;
+                GetObject(hFont, sizeof(lf), &lf);
+                lf.lfQuality = ANTIALIASED_QUALITY;
+                lf.lfHeight = -std::min(siz.cx, siz.cy);
+
+                UINT uFormat = DT_SINGLELINE | DT_CENTER | DT_VCENTER;
+
+                for (INT i = 0; i < 16; ++i)
+                {
+                    hFont = CreateFontIndirect(&lf);
+
+                    RECT rcText;
+                    SetRectEmpty(&rcText);
+
+                    HGDIOBJ hFontOld = SelectObject(pcd->hdc, hFont);
+                    DrawText(pcd->hdc, szText, lstrlen(szText), &rcText, uFormat | DT_CALCRECT);
+                    SelectObject(pcd->hdc, hFontOld);
+
+                    SIZE sizText;
+                    sizText.cx = rcText.right - rcText.left;
+                    sizText.cy = rcText.bottom - rcText.top;
+                    if (sizText.cx <= siz.cx && sizText.cy <= siz.cy)
+                        break;
+
+                    lf.lfHeight = lf.lfHeight * 9 / 10;
+                    DeleteObject(hFont);
+                }
+
+                if (pcd->uItemState & CDIS_SELECTED)
+                    OffsetRect(&rc, 1, 1);
+
+                HGDIOBJ hFontOld = SelectObject(pcd->hdc, hFont);
+                SetBkMode(pcd->hdc, TRANSPARENT);
+                SetTextColor(pcd->hdc, GetSysColor(COLOR_BTNTEXT));
+                DrawText(pcd->hdc, szText, lstrlen(szText), &rc, uFormat);
+                SelectObject(pcd->hdc, hFontOld);
+
+                DeleteObject(hFont);
+            }
+            return CDRF_SKIPDEFAULT;
+        case CDDS_POSTPAINT:
+        case CDDS_ITEMPOSTPAINT:
+            return CDRF_SKIPDEFAULT;
+        case CDDS_SUBITEM:
+            return CDRF_SKIPDEFAULT;
+        }
+
+        return CDRF_DODEFAULT;
+    }
+
+    return 0;
+}
+
 INT_PTR CALLBACK
 DialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+    LRESULT result;
     HWND hwndParent = GetParent(hwnd);
     switch (uMsg)
     {
@@ -71,6 +194,10 @@ DialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_CONTEXTMENU:
         PostMessage(hwndParent, uMsg, wParam, lParam);
         break;
+    case WM_NOTIFY:
+        result = OnNotify(hwnd, (INT)wParam, (NMHDR *)lParam);
+        SetWindowLongPtr(hwnd, DWLP_MSGRESULT, result);
+        return TRUE;
     }
     return 0;
 }
