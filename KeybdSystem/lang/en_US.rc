@@ -11,6 +11,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_DEFAULT
 STRINGTABLE
 {
     IDS_APP_NAME, "On-screen Keyboard (KeybdSystem)"
+    IDS_CANTLOADPLUGINS, "Unable to load keyboard plugins."
 }
 
 //////////////////////////////////////////////////////////////////////////////

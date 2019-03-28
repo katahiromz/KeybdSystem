@@ -223,7 +223,10 @@ BOOL OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     PathRemoveBackslash(szPath);
 
     if (!PF_LoadAll(s_plugins, szPath))
+    {
+        MessageBox(hwnd, LoadStringDx(IDS_CANTLOADPLUGINS), NULL, MB_ICONERROR);
         return FALSE;
+    }
 
     for (size_t i = 0; i < s_plugins.size(); ++i)
     {

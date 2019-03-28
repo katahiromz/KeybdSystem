@@ -4,6 +4,7 @@
 // KeybdSystem_res.rc
 
 #define IDS_APP_NAME                        100
+#define IDS_CANTLOADPLUGINS                 101
 
 #ifdef APSTUDIO_INVOKED
     #ifndef APSTUDIO_READONLY_SYMBOLS

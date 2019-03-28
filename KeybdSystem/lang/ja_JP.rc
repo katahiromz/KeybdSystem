@@ -11,6 +11,7 @@ LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 STRINGTABLE
 {
     IDS_APP_NAME, "仮想キーボード (KeybdSystem)"
+    IDS_CANTLOADPLUGINS, "キーボードプラグインが読み込みできません。"
 }
 
 //////////////////////////////////////////////////////////////////////////////
