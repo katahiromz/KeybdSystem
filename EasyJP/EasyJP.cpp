@@ -295,6 +295,11 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         s_dwStatus &= ~(SHIFT | CTRL | ALT);
         return;
     }
+    if (lstrcmpi(text, LoadStringDx(IDS_ROMAJI)) == 0)
+    {
+        DoTypeOneKey(pi, VK_OEM_COPY, 4);
+        return;
+    }
     if (lstrcmpi(text, LoadStringDx(IDS_KANA)) == 0)
     {
         if (s_dwStatus & ALT)
