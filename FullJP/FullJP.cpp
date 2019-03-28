@@ -127,41 +127,8 @@ static void DoTypeBackSpace(PLUGIN *pi)
     MySleep();
 }
 
-static void DoTypeOneChar(PLUGIN *pi, TCHAR ch)
+static void DoTypeOneKey(PLUGIN *pi, char wVk, char flags = 0)
 {
-    WORD wType;
-    GetStringTypeW(CT_CTYPE3, &ch, 1, &wType);
-    if (wType & C3_FULLWIDTH)
-    {
-        GetStringTypeW(CT_CTYPE1, &ch, 1, &wType);
-        if (wType & (C1_ALPHA | C1_DIGIT))
-        {
-            TCHAR ch2;
-            LCMapStringW(LOCALE_USER_DEFAULT, LCMAP_HALFWIDTH, &ch, 1, &ch2, 1);
-            ch = ch2;
-        }
-    }
-
-    if (IsCapsLocked())
-    {
-        if (IsCharLower(ch))
-            ch = (TCHAR)(INT_PTR)CharUpper((LPTSTR)(INT_PTR)ch);
-        else if (IsCharUpper(ch))
-            ch = (TCHAR)(INT_PTR)CharLower((LPTSTR)(INT_PTR)ch);
-    }
-
-    SHORT s = VkKeyScanEx(ch, GetKeyboardLayout(0));
-    char wVk = LOBYTE(s);
-    char flags = HIBYTE(s);
-    if (wVk == -1 && flags == -1)
-    {
-        MyKeybdEvent(0, ch, KEYEVENTF_UNICODE, 0);
-        MySleep();
-        MyKeybdEvent(0, ch, KEYEVENTF_UNICODE | KEYEVENTF_KEYUP, 0);
-        MySleep();
-        return;
-    }
-
     if ((flags & 4) || (s_dwStatus & ALT))
     {
         MyKeybdEvent(VK_MENU, 0, 0, 0);
@@ -199,6 +166,44 @@ static void DoTypeOneChar(PLUGIN *pi, TCHAR ch)
     }
 
     MySleep();
+}
+
+static void DoTypeOneChar(PLUGIN *pi, TCHAR ch)
+{
+    WORD wType;
+    GetStringTypeW(CT_CTYPE3, &ch, 1, &wType);
+    if (wType & C3_FULLWIDTH)
+    {
+        GetStringTypeW(CT_CTYPE1, &ch, 1, &wType);
+        if (wType & (C1_ALPHA | C1_DIGIT))
+        {
+            TCHAR ch2;
+            LCMapStringW(LOCALE_USER_DEFAULT, LCMAP_HALFWIDTH, &ch, 1, &ch2, 1);
+            ch = ch2;
+        }
+    }
+
+    if (IsCapsLocked())
+    {
+        if (IsCharLower(ch))
+            ch = (TCHAR)(INT_PTR)CharUpper((LPTSTR)(INT_PTR)ch);
+        else if (IsCharUpper(ch))
+            ch = (TCHAR)(INT_PTR)CharLower((LPTSTR)(INT_PTR)ch);
+    }
+
+    SHORT s = VkKeyScanEx(ch, GetKeyboardLayout(0));
+    char wVk = LOBYTE(s);
+    char flags = HIBYTE(s);
+    if (wVk == -1 && flags == -1)
+    {
+        MyKeybdEvent(0, ch, KEYEVENTF_UNICODE, 0);
+        MySleep();
+        MyKeybdEvent(0, ch, KEYEVENTF_UNICODE | KEYEVENTF_KEYUP, 0);
+        MySleep();
+        return;
+    }
+
+    DoTypeOneKey(pi, wVk, flags);
 }
 
 static BOOL CheckButtonText(const TCHAR *text, UINT ids, UINT vk)

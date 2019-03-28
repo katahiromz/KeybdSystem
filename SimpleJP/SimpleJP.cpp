@@ -147,27 +147,8 @@ static void DoTypeBackSpace(PLUGIN *pi)
     MySleep();
 }
 
-static void DoTypeOneChar(PLUGIN *pi, TCHAR ch)
+static void DoTypeOneKey(PLUGIN *pi, char wVk, char flags = 0)
 {
-    SHORT s = VkKeyScanEx(ch, GetKeyboardLayout(0));
-    char wVk = LOBYTE(s);
-    char flags = HIBYTE(s);
-    if (wVk == -1 && flags == -1)
-    {
-        HWND hwnd = GetForegroundWindow();
-        ImeOnOff(pi, TRUE);
-
-        MyKeybdEvent(0, ch, KEYEVENTF_UNICODE, 0);
-        MySleep();
-        MyKeybdEvent(0, ch, KEYEVENTF_UNICODE | KEYEVENTF_KEYUP, 0);
-        MySleep();
-        return;
-    }
-    else
-    {
-        ImeOnOff(pi, FALSE);
-    }
-
     if (flags & 4)
     {
         MyKeybdEvent(VK_MENU, 0, 0, 0);
@@ -204,6 +185,30 @@ static void DoTypeOneChar(PLUGIN *pi, TCHAR ch)
         MyKeybdEvent(VK_MENU, 0, KEYEVENTF_KEYUP, 0);
     }
     MySleep();
+}
+
+static void DoTypeOneChar(PLUGIN *pi, TCHAR ch)
+{
+    SHORT s = VkKeyScanEx(ch, GetKeyboardLayout(0));
+    char wVk = LOBYTE(s);
+    char flags = HIBYTE(s);
+    if (wVk == -1 && flags == -1)
+    {
+        HWND hwnd = GetForegroundWindow();
+        ImeOnOff(pi, TRUE);
+
+        MyKeybdEvent(0, ch, KEYEVENTF_UNICODE, 0);
+        MySleep();
+        MyKeybdEvent(0, ch, KEYEVENTF_UNICODE | KEYEVENTF_KEYUP, 0);
+        MySleep();
+        return;
+    }
+    else
+    {
+        ImeOnOff(pi, FALSE);
+    }
+
+    DoTypeOneKey(pi, wVk, flags);
 }
 
 static void DoTypeDakuten(PLUGIN *pi, TCHAR ch)

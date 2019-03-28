@@ -127,28 +127,8 @@ static void DoTypeBackSpace(PLUGIN *pi)
     MySleep();
 }
 
-static void DoTypeOneChar(PLUGIN *pi, TCHAR ch)
+static void DoTypeOneKey(PLUGIN *pi, char wVk, char flags = 0)
 {
-    if (IsCapsLocked())
-    {
-        if (IsCharLower(ch))
-            ch = (TCHAR)(INT_PTR)CharUpper((LPTSTR)(INT_PTR)ch);
-        else if (IsCharUpper(ch))
-            ch = (TCHAR)(INT_PTR)CharLower((LPTSTR)(INT_PTR)ch);
-    }
-
-    SHORT s = VkKeyScanEx(ch, GetKeyboardLayout(0));
-    char wVk = LOBYTE(s);
-    char flags = HIBYTE(s);
-    if (wVk == -1 && flags == -1)
-    {
-        MyKeybdEvent(0, ch, KEYEVENTF_UNICODE, 0);
-        MySleep();
-        MyKeybdEvent(0, ch, KEYEVENTF_UNICODE | KEYEVENTF_KEYUP, 0);
-        MySleep();
-        return;
-    }
-
     if ((flags & 4) || (s_dwStatus & ALT))
     {
         MyKeybdEvent(VK_MENU, 0, 0, 0);
@@ -186,6 +166,31 @@ static void DoTypeOneChar(PLUGIN *pi, TCHAR ch)
     }
 
     MySleep();
+}
+
+static void DoTypeOneChar(PLUGIN *pi, TCHAR ch)
+{
+    if (IsCapsLocked())
+    {
+        if (IsCharLower(ch))
+            ch = (TCHAR)(INT_PTR)CharUpper((LPTSTR)(INT_PTR)ch);
+        else if (IsCharUpper(ch))
+            ch = (TCHAR)(INT_PTR)CharLower((LPTSTR)(INT_PTR)ch);
+    }
+
+    SHORT s = VkKeyScanEx(ch, GetKeyboardLayout(0));
+    char wVk = LOBYTE(s);
+    char flags = HIBYTE(s);
+    if (wVk == -1 && flags == -1)
+    {
+        MyKeybdEvent(0, ch, KEYEVENTF_UNICODE, 0);
+        MySleep();
+        MyKeybdEvent(0, ch, KEYEVENTF_UNICODE | KEYEVENTF_KEYUP, 0);
+        MySleep();
+        return;
+    }
+
+    DoTypeOneKey(pi, wVk, flags);
 }
 
 static BOOL CheckButtonText(const TCHAR *text, UINT ids, UINT vk)
