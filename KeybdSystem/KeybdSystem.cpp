@@ -556,18 +556,21 @@ WinMain(HINSTANCE   hInstance,
     s_hInst = hInstance;
     InitCommonControls();
 
-    WNDCLASS wc;
-    ZeroMemory(&wc, sizeof(wc));
-    wc.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
-    wc.lpfnWndProc = WindowProc;
-    wc.hInstance = hInstance;
-    wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground = (HBRUSH)(COLOR_3DFACE + 1);
-    wc.lpszClassName = s_szName;
-    if (!RegisterClass(&wc))
+    WNDCLASSEX wcx;
+    ZeroMemory(&wcx, sizeof(wcx));
+    wcx.cbSize = sizeof(wcx);
+    wcx.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
+    wcx.lpfnWndProc = WindowProc;
+    wcx.hInstance = hInstance;
+    wcx.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(1));
+    wcx.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wcx.hbrBackground = (HBRUSH)(COLOR_3DFACE + 1);
+    wcx.lpszClassName = s_szName;
+    wcx.hIconSm = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(1), IMAGE_ICON,
+        GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), 0);
+    if (!RegisterClassEx(&wcx))
     {
-        MessageBoxA(NULL, "RegisterClass failed", NULL, MB_ICONERROR);
+        MessageBoxA(NULL, "RegisterClassEx failed", NULL, MB_ICONERROR);
         return 1;
     }
 
@@ -575,7 +578,7 @@ WinMain(HINSTANCE   hInstance,
     SystemParametersInfo(SPI_GETWORKAREA, 0, &rcWork, 0);
 
     DWORD style = WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN;
-    DWORD exstyle = WS_EX_TOPMOST | WS_EX_APPWINDOW | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW;
+    DWORD exstyle = WS_EX_TOPMOST | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW;
     HWND hwnd = CreateWindowEx(exstyle, s_szName, s_szName, style,
         rcWork.left, rcWork.bottom, 0, 0,
         NULL, NULL, hInstance, NULL);
