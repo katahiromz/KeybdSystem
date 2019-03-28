@@ -402,92 +402,43 @@ void OnRefresh(PLUGIN *pi)
 
     if (!bOpen)
     {
-        if (IsNumLocked())
+        if (IsCapsLocked())
         {
-            if (IsCapsLocked())
-            {
-                if (s_dwStatus & SHIFT)
-                    nNewKeybdID = IDD_NUM_CAPITAL_SHIFTED;
-                else
-                    nNewKeybdID = IDD_NUM_CAPITAL;
-            }
+            if (s_dwStatus & SHIFT)
+                nNewKeybdID = IDD_CAPITAL_SHIFTED;
             else
-            {
-                if (s_dwStatus & SHIFT)
-                    nNewKeybdID = IDD_NUM_SHIFTED;
-                else
-                    nNewKeybdID = IDD_NUM_NORMAL;
-            }
+                nNewKeybdID = IDD_CAPITAL;
         }
         else
         {
-            if (IsCapsLocked())
-            {
-                if (s_dwStatus & SHIFT)
-                    nNewKeybdID = IDD_CAPITAL_SHIFTED;
-                else
-                    nNewKeybdID = IDD_CAPITAL;
-            }
+            if (s_dwStatus & SHIFT)
+                nNewKeybdID = IDD_SHIFTED;
             else
-            {
-                if (s_dwStatus & SHIFT)
-                    nNewKeybdID = IDD_SHIFTED;
-                else
-                    nNewKeybdID = IDD_NORMAL;
-            }
+                nNewKeybdID = IDD_NORMAL;
         }
     }
     else if (dwConv & IME_CMODE_ROMAN)
     {
-        if (IsNumLocked())
-        {
-            if (s_dwStatus & SHIFT)
-                nNewKeybdID = IDD_ROMA_NUM_SHIFTED;
-            else
-                nNewKeybdID = IDD_ROMA_NUM_NORMAL;
-        }
+        if (s_dwStatus & SHIFT)
+            nNewKeybdID = IDD_ROMA_SHIFTED;
         else
-        {
-            if (s_dwStatus & SHIFT)
-                nNewKeybdID = IDD_ROMA_SHIFTED;
-            else
-                nNewKeybdID = IDD_ROMA_NORMAL;
-        }
+            nNewKeybdID = IDD_ROMA_NORMAL;
     }
     else if (!(dwConv & IME_CMODE_KATAKANA))
     {
-        if (IsNumLocked())
-        {
-            if (s_dwStatus & SHIFT)
-                nNewKeybdID = IDD_HIRA_NUM_SHIFTED;
-            else
-                nNewKeybdID = IDD_HIRA_NUM_NORMAL;
-        }
+        if (s_dwStatus & SHIFT)
+            nNewKeybdID = IDD_HIRA_SHIFTED;
         else
-        {
-            if (s_dwStatus & SHIFT)
-                nNewKeybdID = IDD_HIRA_SHIFTED;
-            else
-                nNewKeybdID = IDD_HIRA_NORMAL;
-        }
+            nNewKeybdID = IDD_HIRA_NORMAL;
     }
     else
     {
-        if (IsNumLocked())
-        {
-            if (s_dwStatus & SHIFT)
-                nNewKeybdID = IDD_KATA_NUM_SHIFTED;
-            else
-                nNewKeybdID = IDD_KATA_NUM_NORMAL;
-        }
+        if (s_dwStatus & SHIFT)
+            nNewKeybdID = IDD_KATA_SHIFTED;
         else
-        {
-            if (s_dwStatus & SHIFT)
-                nNewKeybdID = IDD_KATA_SHIFTED;
-            else
-                nNewKeybdID = IDD_KATA_NORMAL;
-        }
+            nNewKeybdID = IDD_KATA_NORMAL;
     }
+
     if (s_nKeybdID != nNewKeybdID)
     {
         s_nKeybdID = nNewKeybdID;

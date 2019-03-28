@@ -9,26 +9,14 @@
 #define IDD_CAPITAL                         101
 #define IDD_SHIFTED                         102
 #define IDD_CAPITAL_SHIFTED                 103
-#define IDD_NUM_NORMAL                      104
-#define IDD_NUM_CAPITAL                     105
-#define IDD_NUM_SHIFTED                     106
-#define IDD_NUM_CAPITAL_SHIFTED             107
 #define IDD_ROMA_NORMAL                     108
 #define IDD_ROMA_CAPITAL                    109
 #define IDD_ROMA_SHIFTED                    110
 #define IDD_ROMA_CAPITAL_SHIFTED            111
-#define IDD_ROMA_NUM_NORMAL                 112
-#define IDD_ROMA_NUM_CAPITAL                113
-#define IDD_ROMA_NUM_SHIFTED                114
-#define IDD_ROMA_NUM_CAPITAL_SHIFTED        115
 #define IDD_HIRA_NORMAL                     116
 #define IDD_HIRA_SHIFTED                    117
-#define IDD_HIRA_NUM_NORMAL                 118
-#define IDD_HIRA_NUM_SHIFTED                119
 #define IDD_KATA_NORMAL                     120
 #define IDD_KATA_SHIFTED                    121
-#define IDD_KATA_NUM_NORMAL                 122
-#define IDD_KATA_NUM_SHIFTED                123
 
 #define IDS_KANA                            100
 #define IDS_ABC                             101
