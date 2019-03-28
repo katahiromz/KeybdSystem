@@ -125,6 +125,14 @@ LRESULT OnNotify(HWND hwnd, int idFrom, LPNMHDR pnmhdr)
                 lf.lfQuality = ANTIALIASED_QUALITY;
                 lf.lfHeight = -std::min(siz.cx, siz.cy);
 
+                if (lstrcmpi(lf.lfFaceName, TEXT("MS UI Gothic")) == 0)
+                {
+                    if (~GetFileAttributes(TEXT("C:\\Windows\\Fonts\\meiryo.ttc")))
+                        StringCbCopy(lf.lfFaceName, sizeof(lf.lfFaceName), TEXT("Meiryo"));
+                    else
+                        StringCbCopy(lf.lfFaceName, sizeof(lf.lfFaceName), TEXT("MS PGothic"));
+                }
+
                 UINT uFormat = DT_SINGLELINE | DT_CENTER | DT_VCENTER;
 
                 for (INT i = 0; i < 16; ++i)
