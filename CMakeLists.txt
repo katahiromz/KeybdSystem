@@ -65,6 +65,7 @@ subdirs(KeybdSystem
     FullEn
     SimpleJP
     EasyJP
+    StdJP
     FullJP
     SimpleNumPad)
 
