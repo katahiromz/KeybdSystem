@@ -396,7 +396,11 @@ void OnRefresh(PLUGIN *pi)
     UINT nNewKeybdID = 0;
 
     HWND hwnd = GetForegroundWindow();
-    HWND hwndIME = ImmGetDefaultIMEWnd(hwnd);
+    DWORD tid = GetWindowThreadProcessId(hwnd, NULL);
+    GUITHREADINFO info;
+    info.cbSize = sizeof(info);
+    GetGUIThreadInfo(tid, &info);
+    HWND hwndIME = ImmGetDefaultIMEWnd(info.hwndFocus);
     BOOL bOpen = (BOOL)SendMessage(hwndIME, WM_IME_CONTROL, IMC_GETOPENSTATUS, 0);
     DWORD dwConv = (DWORD)SendMessage(hwndIME, WM_IME_CONTROL, IMC_GETCONVERSIONMODE, 0);
 

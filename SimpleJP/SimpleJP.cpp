@@ -66,7 +66,11 @@ static inline void MyKeybdEvent(WORD wVk, WORD wScan, DWORD dwFlags, ULONG_PTR d
 static void ImeOnOff(PLUGIN *pi, BOOL bOn)
 {
     HWND hwnd = GetForegroundWindow();
-    HWND hwndIME = ImmGetDefaultIMEWnd(hwnd);
+    DWORD tid = GetWindowThreadProcessId(hwnd, NULL);
+    GUITHREADINFO info;
+    info.cbSize = sizeof(info);
+    GetGUIThreadInfo(tid, &info);
+    HWND hwndIME = ImmGetDefaultIMEWnd(info.hwndFocus);
     BOOL bOpen = SendMessage(hwndIME, WM_IME_CONTROL, IMC_GETOPENSTATUS, 0);
 
     if (bOpen != bOn)
