@@ -937,7 +937,7 @@ FONT 8, "MS UI Gothic"
 }
 
 IDD_ROMA_NORMAL DIALOG 0, 0, 590, 155
-CAPTION "Alphabet"
+CAPTION "Romaji"
 STYLE DS_CONTROL | WS_CHILD | WS_CAPTION
 FONT 8, "MS UI Gothic"
 {
@@ -1053,7 +1053,7 @@ FONT 8, "MS UI Gothic"
 }
 
 IDD_ROMA_CAPITAL DIALOG 0, 0, 590, 155
-CAPTION "Alphabet (Capital)"
+CAPTION "Romaji (Capital)"
 STYLE DS_CONTROL | WS_CHILD | WS_CAPTION
 FONT 8, "MS UI Gothic"
 {
@@ -1169,7 +1169,7 @@ FONT 8, "MS UI Gothic"
 }
 
 IDD_ROMA_SHIFTED DIALOG 0, 0, 590, 155
-CAPTION "Alphabet (Shifted)"
+CAPTION "Romaji (Shifted)"
 STYLE DS_CONTROL | WS_CHILD | WS_CAPTION
 FONT 8, "MS UI Gothic"
 {
@@ -1285,7 +1285,7 @@ FONT 8, "MS UI Gothic"
 }
 
 IDD_ROMA_CAPITAL_SHIFTED DIALOG 0, 0, 590, 155
-CAPTION "Alphabet (Capital, Shifted)"
+CAPTION "Romaji (Capital, Shifted)"
 STYLE DS_CONTROL | WS_CHILD | WS_CAPTION
 FONT 8, "MS UI Gothic"
 {
@@ -1401,7 +1401,7 @@ FONT 8, "MS UI Gothic"
 }
 
 IDD_ROMA_NUM_NORMAL DIALOG 0, 0, 590, 155
-CAPTION "Alphabet (NumLock)"
+CAPTION "Romaji (NumLock)"
 STYLE DS_CONTROL | WS_CHILD | WS_CAPTION
 FONT 8, "MS UI Gothic"
 {
@@ -1530,7 +1530,7 @@ FONT 8, "MS UI Gothic"
 }
 
 IDD_ROMA_NUM_CAPITAL DIALOG 0, 0, 590, 155
-CAPTION "Alphabet (NumLock, Capital)"
+CAPTION "Romaji (NumLock, Capital)"
 STYLE DS_CONTROL | WS_CHILD | WS_CAPTION
 FONT 8, "MS UI Gothic"
 {
@@ -1646,7 +1646,7 @@ FONT 8, "MS UI Gothic"
 }
 
 IDD_ROMA_NUM_SHIFTED DIALOG 0, 0, 590, 155
-CAPTION "Alphabet (NumLock, Shifted)"
+CAPTION "Romaji (NumLock, Shifted)"
 STYLE DS_CONTROL | WS_CHILD | WS_CAPTION
 FONT 8, "MS UI Gothic"
 {
@@ -1762,7 +1762,7 @@ FONT 8, "MS UI Gothic"
 }
 
 IDD_ROMA_NUM_CAPITAL_SHIFTED DIALOG 0, 0, 590, 155
-CAPTION "Alphabet (NumLock, Capital, Shifted)"
+CAPTION "Romaji (NumLock, Capital, Shifted)"
 STYLE DS_CONTROL | WS_CHILD | WS_CAPTION
 FONT 8, "MS UI Gothic"
 {
@@ -1878,7 +1878,7 @@ FONT 8, "MS UI Gothic"
 }
 
 IDD_HIRA_NORMAL DIALOG 0, 0, 590, 155
-CAPTION "Alphabet"
+CAPTION "Hiragana"
 STYLE DS_CONTROL | WS_CHILD | WS_CAPTION
 FONT 8, "MS UI Gothic"
 {
@@ -1994,7 +1994,7 @@ FONT 8, "MS UI Gothic"
 }
 
 IDD_HIRA_SHIFTED DIALOG 0, 0, 590, 155
-CAPTION "Alphabet (Shifted)"
+CAPTION "Hiragana (Shifted)"
 STYLE DS_CONTROL | WS_CHILD | WS_CAPTION
 FONT 8, "MS UI Gothic"
 {
@@ -2110,7 +2110,7 @@ FONT 8, "MS UI Gothic"
 }
 
 IDD_HIRA_NUM_NORMAL DIALOG 0, 0, 590, 155
-CAPTION "Alphabet (NumLock)"
+CAPTION "Hiragana (NumLock)"
 STYLE DS_CONTROL | WS_CHILD | WS_CAPTION
 FONT 8, "MS UI Gothic"
 {
@@ -2226,7 +2226,7 @@ FONT 8, "MS UI Gothic"
 }
 
 IDD_HIRA_NUM_SHIFTED DIALOG 0, 0, 590, 155
-CAPTION "Alphabet (NumLock, Shifted)"
+CAPTION "Hiragana (NumLock, Shifted)"
 STYLE DS_CONTROL | WS_CHILD | WS_CAPTION
 FONT 8, "MS UI Gothic"
 {
@@ -2342,7 +2342,7 @@ FONT 8, "MS UI Gothic"
 }
 
 IDD_KATA_NORMAL DIALOG 0, 0, 590, 155
-CAPTION "Alphabet"
+CAPTION "Katakana"
 STYLE DS_CONTROL | WS_CHILD | WS_CAPTION
 FONT 8, "MS UI Gothic"
 {
@@ -2458,7 +2458,7 @@ FONT 8, "MS UI Gothic"
 }
 
 IDD_KATA_SHIFTED DIALOG 0, 0, 590, 155
-CAPTION "Alphabet (Shifted)"
+CAPTION "Katakana (Shifted)"
 STYLE DS_CONTROL | WS_CHILD | WS_CAPTION
 FONT 8, "MS UI Gothic"
 {
@@ -2574,7 +2574,7 @@ FONT 8, "MS UI Gothic"
 }
 
 IDD_KATA_NUM_NORMAL DIALOG 0, 0, 590, 155
-CAPTION "Alphabet (NumLock)"
+CAPTION "Katakana (NumLock)"
 STYLE DS_CONTROL | WS_CHILD | WS_CAPTION
 FONT 8, "MS UI Gothic"
 {
@@ -2690,7 +2690,7 @@ FONT 8, "MS UI Gothic"
 }
 
 IDD_KATA_NUM_SHIFTED DIALOG 0, 0, 590, 155
-CAPTION "Alphabet (NumLock, Shifted)"
+CAPTION "Katakana (NumLock, Shifted)"
 STYLE DS_CONTROL | WS_CHILD | WS_CAPTION
 FONT 8, "MS UI Gothic"
 {
