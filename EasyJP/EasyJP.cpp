@@ -300,7 +300,8 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         DoTypeOneKey(pi, VK_OEM_COPY, 4);
         return;
     }
-    if (lstrcmpi(text, LoadStringDx(IDS_KANA)) == 0)
+    if (lstrcmpi(text, LoadStringDx(IDS_KANA)) == 0 ||
+        lstrcmpi(text, LoadStringDx(IDS_KATA)) == 0)
     {
         DoTypeOneKey(pi, VK_OEM_COPY, 0);
         s_dwStatus &= ~(SHIFT | CTRL | ALT);
