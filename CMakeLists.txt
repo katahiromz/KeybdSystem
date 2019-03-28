@@ -59,7 +59,8 @@ endif()
 
 ##############################################################################
 
-subdirs(KeybdSystem
+subdirs(
+    KeybdSystem
     EasyEn
     StdEn
     FullEn
@@ -68,5 +69,29 @@ subdirs(KeybdSystem
     StdJP
     FullJP
     SimpleNumPad)
+
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+add_custom_target(
+    deploy ALL
+    DEPENDS
+            $<TARGET_FILE:KeybdSystem>
+            $<TARGET_FILE:EasyEn>
+            $<TARGET_FILE:StdEn>
+            $<TARGET_FILE:FullEn>
+            $<TARGET_FILE:SimpleJP>
+            $<TARGET_FILE:EasyJP>
+            $<TARGET_FILE:StdJP>
+            $<TARGET_FILE:SimpleNumPad>
+    COMMAND ${CMAKE_COMMAND} -E copy
+            $<TARGET_FILE:KeybdSystem>
+            $<TARGET_FILE:EasyEn>
+            $<TARGET_FILE:StdEn>
+            $<TARGET_FILE:FullEn>
+            $<TARGET_FILE:SimpleJP>
+            $<TARGET_FILE:EasyJP>
+            $<TARGET_FILE:StdJP>
+            $<TARGET_FILE:SimpleNumPad>
+            ${CMAKE_BINARY_DIR}/bin)
 
 ##############################################################################
