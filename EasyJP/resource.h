@@ -67,6 +67,7 @@
 #define IDS_NUM                             146
 #define IDS_HAN_ZEN                         147
 #define IDS_ROMAJI                          148
+#define IDS_APPNAME                         149
 
 #ifdef APSTUDIO_INVOKED
     #ifndef APSTUDIO_READONLY_SYMBOLS

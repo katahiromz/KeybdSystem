@@ -430,6 +430,7 @@ STRINGTABLE
     IDS_DOWN, "Down"
     IDS_PAUSE, "Pause"
     IDS_ESC, "Esc"
+    IDS_APPNAME, "Simple Japanese Keyboard"
 }
 
 //////////////////////////////////////////////////////////////////////////////

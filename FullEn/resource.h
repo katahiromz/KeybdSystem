@@ -61,6 +61,7 @@
 #define IDS_PRINT                           144
 #define IDS_BREAK                           145
 #define IDS_NUM                             146
+#define IDS_APPNAME                         147
 
 #ifdef APSTUDIO_INVOKED
     #ifndef APSTUDIO_READONLY_SYMBOLS

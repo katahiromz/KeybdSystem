@@ -37,6 +37,7 @@
 #define IDS_DOWN                            127
 #define IDS_PAUSE                           128
 #define IDS_ESC                             129
+#define IDS_APPNAME                         130
 
 #ifdef APSTUDIO_INVOKED
     #ifndef APSTUDIO_READONLY_SYMBOLS
