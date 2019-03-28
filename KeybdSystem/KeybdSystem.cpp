@@ -423,8 +423,14 @@ BOOL OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     if (!PF_LoadAll(s_plugins, szPath))
     {
-        MessageBox(hwnd, LoadStringDx(IDS_CANTLOADPLUGINS), NULL, MB_ICONERROR);
-        return FALSE;
+        GetModuleFileName(NULL, szPath, ARRAYSIZE(szPath));
+        *PathFindFileName(szPath) = 0;
+        PathAppend(szPath, TEXT("plugins"));
+        if (!PF_LoadAll(s_plugins, szPath))
+        {
+            MessageBox(hwnd, LoadStringDx(IDS_CANTLOADPLUGINS), NULL, MB_ICONERROR);
+            return FALSE;
+        }
     }
 
     std::sort(s_plugins.begin(), s_plugins.end(),

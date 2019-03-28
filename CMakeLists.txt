@@ -82,6 +82,7 @@ add_custom_target(
             $<TARGET_FILE:SimpleJP>
             $<TARGET_FILE:EasyJP>
             $<TARGET_FILE:StdJP>
+            $<TARGET_FILE:FullJP>
             $<TARGET_FILE:SimpleNumPad>
     COMMAND ${CMAKE_COMMAND} -E copy
             $<TARGET_FILE:KeybdSystem>
@@ -91,6 +92,7 @@ add_custom_target(
             $<TARGET_FILE:SimpleJP>
             $<TARGET_FILE:EasyJP>
             $<TARGET_FILE:StdJP>
+            $<TARGET_FILE:FullJP>
             $<TARGET_FILE:SimpleNumPad>
             ${CMAKE_BINARY_DIR}/bin)
 
