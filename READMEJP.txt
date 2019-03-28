@@ -1,7 +1,7 @@
-KeybdSystem
+﻿KeybdSystem
 -----------
 
-KeybdSystem �́A�ЎR����MZ�ɂ�鉼�z�L�[�{�[�h�V�X�e���ł��B
-KeybdSystem �́A�t���[�\�t�g�ł��B
+KeybdSystem は、片山博文MZによる仮想キーボードシステムです。
+KeybdSystem は、フリーソフトです。
 
-Windows XP/Vista/7/10�œ��삵�܂��B
+Windows XP/Vista/7/10で動作します。
