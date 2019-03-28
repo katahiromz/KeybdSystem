@@ -33,10 +33,10 @@ FONT 10, "Tahoma"
     PUSHBUTTON "Pause", IDC_STATIC, 180, 0, 30, 30
     PUSHBUTTON "Home", IDC_STATIC, 135, 45, 30, 30
     PUSHBUTTON "End", IDC_STATIC, 180, 45, 30, 30
-    PUSHBUTTON "Up", IDC_STATIC, 157, 90, 30, 30
-    PUSHBUTTON "Down", IDC_STATIC, 157, 120, 30, 30
-    PUSHBUTTON "Left", IDC_STATIC, 125, 120, 30, 30
-    PUSHBUTTON "Right", IDC_STATIC, 190, 120, 30, 30
+    PUSHBUTTON "↑", IDC_STATIC, 157, 90, 30, 30
+    PUSHBUTTON "↓", IDC_STATIC, 157, 120, 30, 30
+    PUSHBUTTON "←", IDC_STATIC, 125, 120, 30, 30
+    PUSHBUTTON "→", IDC_STATIC, 190, 120, 30, 30
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -58,8 +58,8 @@ STRINGTABLE
     IDS_PREVCAND, "PrevCand"
     IDS_BS, "BackSpace"
     IDS_DEL, "Del"
-    IDS_LEFT, "Left"
-    IDS_RIGHT, "Right"
+    IDS_LEFT, "←"
+    IDS_RIGHT, "→"
     IDS_SMALL, "Sm"
     IDS_CTRL, "Ctrl"
     IDS_ALT, "Alt"
@@ -70,8 +70,8 @@ STRINGTABLE
     IDS_END, "End"
     IDS_PGUP, "PgUp"
     IDS_PGDN, "PgDn"
-    IDS_UP, "Up"
-    IDS_DOWN, "Down"
+    IDS_UP, "↑"
+    IDS_DOWN, "↓"
     IDS_PAUSE, "Pause"
     IDS_ESC, "Esc"
     IDS_APPNAME, "Simple NumPad"

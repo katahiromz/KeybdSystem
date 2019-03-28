@@ -127,6 +127,7 @@ LRESULT OnNotify(HWND hwnd, int idFrom, LPNMHDR pnmhdr)
 
                 if (lstrcmpi(lf.lfFaceName, TEXT("MS UI Gothic")) == 0)
                 {
+                    lf.lfWeight = FW_BOLD;
                     if (~GetFileAttributes(TEXT("C:\\Windows\\Fonts\\meiryo.ttc")))
                         StringCbCopy(lf.lfFaceName, sizeof(lf.lfFaceName), TEXT("Meiryo"));
                     else
