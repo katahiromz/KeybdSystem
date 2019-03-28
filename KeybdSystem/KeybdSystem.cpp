@@ -339,6 +339,14 @@ void DoShowContextMenu(HWND hwnd, INT x, INT y)
 {
     HMENU hMenu = CreatePopupMenu();
 
+    if (x == 0xFFFF && y == 0xFFFF)
+    {
+        POINT pt;
+        GetCursorPos(&pt);
+        x = pt.x;
+        y = pt.y;
+    }
+
     for (size_t i = 0; i < s_plugins.size(); ++i)
     {
         PLUGIN& pl = s_plugins[i];
