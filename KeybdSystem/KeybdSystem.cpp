@@ -118,7 +118,7 @@ LRESULT OnNotify(HWND hwnd, int idFrom, LPNMHDR pnmhdr)
 
                 SIZE siz;
                 siz.cx = (rc.right - rc.left) * 8 / 10;
-                siz.cy = (rc.bottom - rc.top) * 8 / 10;
+                siz.cy = (rc.bottom - rc.top) * 6 / 10;
 
                 LOGFONT lf;
                 GetObject(hFont, sizeof(lf), &lf);
