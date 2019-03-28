@@ -125,7 +125,7 @@ static void DoTypeBackSpace(PLUGIN *pi)
     MySleep();
 }
 
-static void DoTypeOneKey(PLUGIN *pi, TCHAR ch)
+static void DoTypeOneChar(PLUGIN *pi, TCHAR ch)
 {
     SHORT s = VkKeyScanEx(ch, GetKeyboardLayout(0));
     char wVk = LOBYTE(s);
@@ -215,7 +215,7 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
 
     if (text[1] == 0)
     {
-        DoTypeOneKey(pi, text[0]);
+        DoTypeOneChar(pi, text[0]);
         return;
     }
 

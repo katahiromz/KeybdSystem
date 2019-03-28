@@ -147,7 +147,7 @@ static void DoTypeBackSpace(PLUGIN *pi)
     MySleep();
 }
 
-static void DoTypeOneKey(PLUGIN *pi, TCHAR ch)
+static void DoTypeOneChar(PLUGIN *pi, TCHAR ch)
 {
     SHORT s = VkKeyScanEx(ch, GetKeyboardLayout(0));
     char wVk = LOBYTE(s);
@@ -261,11 +261,11 @@ static void DoTypeDakuten(PLUGIN *pi, TCHAR ch)
     if (it != map.end())
     {
         DoTypeBackSpace(pi);
-        DoTypeOneKey(pi, it->second);
+        DoTypeOneChar(pi, it->second);
     }
     else
     {
-        DoTypeOneKey(pi, ch);
+        DoTypeOneChar(pi, ch);
     }
 }
 
@@ -292,11 +292,11 @@ static void DoTypeHanDakuten(PLUGIN *pi, TCHAR ch)
     if (it != map.end())
     {
         DoTypeBackSpace(pi);
-        DoTypeOneKey(pi, it->second);
+        DoTypeOneChar(pi, it->second);
     }
     else
     {
-        DoTypeOneKey(pi, ch);
+        DoTypeOneChar(pi, ch);
     }
 }
 
@@ -380,7 +380,7 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         }
         else
         {
-            DoTypeOneKey(pi, text[0]);
+            DoTypeOneChar(pi, text[0]);
         }
         if (s_dwStatus & SHIFT)
         {

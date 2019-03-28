@@ -122,7 +122,7 @@ static void DoTypeBackSpace(PLUGIN *pi)
     MySleep();
 }
 
-static void DoTypeOneKey(PLUGIN *pi, TCHAR ch)
+static void DoTypeOneChar(PLUGIN *pi, TCHAR ch)
 {
     if (IsCapsLocked())
     {
@@ -213,7 +213,7 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
 
     if (text[1] == 0 || lstrcmpi(text, TEXT("&&")) == 0)
     {
-        DoTypeOneKey(pi, text[0]);
+        DoTypeOneChar(pi, text[0]);
         s_dwStatus &= ~(SHIFT | CTRL | ALT);
         return;
     }

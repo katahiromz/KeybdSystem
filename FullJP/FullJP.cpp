@@ -127,8 +127,21 @@ static void DoTypeBackSpace(PLUGIN *pi)
     MySleep();
 }
 
-static void DoTypeOneKey(PLUGIN *pi, TCHAR ch)
+static void DoTypeOneChar(PLUGIN *pi, TCHAR ch)
 {
+    WORD wType;
+    GetStringTypeW(CT_CTYPE3, &ch, 1, &wType);
+    if (wType & C3_FULLWIDTH)
+    {
+        GetStringTypeW(CT_CTYPE1, &ch, 1, &wType);
+        if (wType & (C1_ALPHA | C1_DIGIT))
+        {
+            TCHAR ch2;
+            LCMapStringW(LOCALE_USER_DEFAULT, LCMAP_HALFWIDTH, &ch, 1, &ch2, 1);
+            ch = ch2;
+        }
+    }
+
     if (IsCapsLocked())
     {
         if (IsCharLower(ch))
@@ -204,7 +217,7 @@ static void
 OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
             HWND hwndCtl, const TCHAR *text)
 {
-    if (hwndCtl == NULL)
+    if (hwndCtl == NULL || text[0] == 0)
         return;
 
     if (CheckButtonText(text, IDS_UP, VK_UP))
@@ -218,7 +231,7 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
 
     if (text[1] == 0 || lstrcmpi(text, TEXT("&&")) == 0)
     {
-        DoTypeOneKey(pi, text[0]);
+        DoTypeOneChar(pi, text[0]);
         s_dwStatus &= ~(SHIFT | CTRL | ALT);
         return;
     }
@@ -267,8 +280,51 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
         s_dwStatus &= ~(SHIFT | CTRL | ALT);
         return;
     }
-    if (CheckButtonText(text, IDS_KANA, VK_KANA))
+    if (lstrcmpi(text, LoadStringDx(IDS_KANA)) == 0)
     {
+        if (s_dwStatus & ALT)
+        {
+            MyKeybdEvent(VK_MENU, 0, 0, 0);
+            MySleep();
+        }
+        if (s_dwStatus & CTRL)
+        {
+            MyKeybdEvent(VK_CONTROL, 0, 0, 0);
+            MySleep();
+        }
+        if (s_dwStatus & SHIFT)
+        {
+            MyKeybdEvent(VK_SHIFT, 0, 0, 0);
+            MySleep();
+        }
+        if (s_dwStatus & ALT)
+        {
+            MyKeybdEvent(VK_OEM_COPY, 0, 0, 0);
+            MySleep();
+            MyKeybdEvent(VK_OEM_COPY, 0, KEYEVENTF_KEYUP, 0);
+        }
+        else
+        {
+
+            MyKeybdEvent(VK_KANA, 0, 0, 0);
+            MySleep();
+            MyKeybdEvent(VK_KANA, 0, KEYEVENTF_KEYUP, 0);
+        }
+        if (s_dwStatus & SHIFT)
+        {
+            MyKeybdEvent(VK_SHIFT, 0, KEYEVENTF_KEYUP, 0);
+            MySleep();
+        }
+        if (s_dwStatus & CTRL)
+        {
+            MyKeybdEvent(VK_CONTROL, 0, KEYEVENTF_KEYUP, 0);
+            MySleep();
+        }
+        if (s_dwStatus & ALT)
+        {
+            MyKeybdEvent(VK_MENU, 0, KEYEVENTF_KEYUP, 0);
+            MySleep();
+        }
         s_dwStatus &= ~(SHIFT | CTRL | ALT);
         return;
     }
@@ -359,7 +415,7 @@ void OnRefresh(PLUGIN *pi)
     BOOL bOpen = (BOOL)SendMessage(hwndIME, WM_IME_CONTROL, IMC_GETOPENSTATUS, 0);
     DWORD dwConv = (DWORD)SendMessage(hwndIME, WM_IME_CONTROL, IMC_GETCONVERSIONMODE, 0);
 
-    if (!bOpen || (dwConv & IME_CMODE_ROMAN))
+    if (!bOpen)
     {
         if (IsNumLocked())
         {
@@ -394,6 +450,23 @@ void OnRefresh(PLUGIN *pi)
                 else
                     nNewKeybdID = IDD_NORMAL;
             }
+        }
+    }
+    else if (dwConv & IME_CMODE_ROMAN)
+    {
+        if (IsNumLocked())
+        {
+            if (s_dwStatus & SHIFT)
+                nNewKeybdID = IDD_ROMA_NUM_SHIFTED;
+            else
+                nNewKeybdID = IDD_ROMA_NUM_NORMAL;
+        }
+        else
+        {
+            if (s_dwStatus & SHIFT)
+                nNewKeybdID = IDD_ROMA_SHIFTED;
+            else
+                nNewKeybdID = IDD_ROMA_NORMAL;
         }
     }
     else if (!(dwConv & IME_CMODE_KATAKANA))
