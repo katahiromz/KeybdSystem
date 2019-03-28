@@ -297,14 +297,7 @@ OnCommandEx(PLUGIN *pi, HWND hDlg, UINT id, UINT codeNotify,
     }
     if (lstrcmpi(text, LoadStringDx(IDS_KANA)) == 0)
     {
-        if (s_dwStatus & ALT)
-        {
-            DoTypeOneKey(pi, VK_OEM_COPY, 0);
-        }
-        else
-        {
-            DoTypeOneKey(pi, VK_KANA, 0);
-        }
+        DoTypeOneKey(pi, VK_OEM_COPY, 0);
         s_dwStatus &= ~(SHIFT | CTRL | ALT);
         return;
     }
