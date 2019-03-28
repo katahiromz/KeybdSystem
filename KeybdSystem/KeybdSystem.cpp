@@ -2,7 +2,9 @@
 #include <windowsx.h>
 #include <commctrl.h>
 #include <shlwapi.h>
+#include <algorithm>
 #include <cassert>
+#include <strsafe.h>
 #include "MSmoothLayout.hpp"
 #include "PluginFramework.hpp"
 #include "resource.h"
@@ -16,6 +18,7 @@ static MSmoothLayout s_layout;
 static HWND s_hwndTarget = NULL;
 static std::vector<PLUGIN> s_plugins;
 static INT s_iPlugin = 0;
+static std::wstring s_strSelectedName;
 
 static inline PLUGIN *GetCurPlugin(void)
 {
@@ -90,6 +93,7 @@ void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             PF_ActOne(GetCurPlugin(), ACTION_DESTROY, 0, 0);
             s_iPlugin = nIndex;
             PF_ActOne(GetCurPlugin(), ACTION_RECREATE, 0, 0);
+            s_strSelectedName = GetCurPlugin()->plugin_product_name;
         }
     }
 }
@@ -210,6 +214,63 @@ LRESULT APIENTRY PF_Driver(struct PLUGIN *pi, UINT uFunc, WPARAM wParam, LPARAM 
     return FALSE;
 }
 
+BOOL DoLoadSettings(HWND hwnd)
+{
+    static const TCHAR s_szSubKey[] = TEXT("Software\\Katayama Hirofumi MZ\\KeybdSystem");
+
+    s_strSelectedName.clear();
+
+    HKEY hApp = NULL;
+    RegOpenKeyEx(HKEY_CURRENT_USER, s_szSubKey, 0, KEY_READ, &hApp);
+    if (hApp)
+    {
+        TCHAR szValue[128];
+        DWORD cb = sizeof(szValue);
+
+        szValue[0] = 0;
+        RegQueryValueEx(hApp, TEXT("Selected"), NULL, NULL, (LPBYTE)szValue, &cb);
+        s_strSelectedName = szValue;
+
+        RegCloseKey(hApp);
+
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+BOOL DoSaveSettings(HWND hwnd)
+{
+    HKEY hSoftware = NULL;
+    RegCreateKeyEx(HKEY_CURRENT_USER, TEXT("Software"), 0, NULL, 0, KEY_ALL_ACCESS,
+                   NULL, &hSoftware, NULL);
+    if (hSoftware)
+    {
+        HKEY hCompany = NULL;
+        RegCreateKeyEx(hSoftware, TEXT("Katayama Hirofumi MZ"), 0, NULL, 0, KEY_ALL_ACCESS,
+                       NULL, &hCompany, NULL);
+        if (hCompany)
+        {
+            HKEY hApp = NULL;
+            RegCreateKeyEx(hCompany, TEXT("KeybdSystem"), 0, NULL, 0, KEY_ALL_ACCESS,
+                           NULL, &hApp, NULL);
+            if (hApp)
+            {
+                TCHAR szValue[128];
+                DWORD cb;
+
+                StringCbCopy(szValue, sizeof(szValue), s_strSelectedName.c_str());
+                cb = (lstrlen(szValue) + 1) * sizeof(TCHAR);
+                RegSetValueEx(hApp, TEXT("Selected"), 0, REG_SZ, (LPBYTE)szValue, cb);
+
+                RegCloseKey(hApp);
+            }
+            RegCloseKey(hCompany);
+        }
+        RegCloseKey(hSoftware);
+    }
+}
+
 BOOL OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
     s_hMainWnd = hwnd;
@@ -222,15 +283,28 @@ BOOL OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     *PathFindFileName(szPath) = 0;
     PathRemoveBackslash(szPath);
 
+    DoLoadSettings(hwnd);
+
     if (!PF_LoadAll(s_plugins, szPath))
     {
         MessageBox(hwnd, LoadStringDx(IDS_CANTLOADPLUGINS), NULL, MB_ICONERROR);
         return FALSE;
     }
 
+    std::sort(s_plugins.begin(), s_plugins.end(),
+        [](const PLUGIN& a, const PLUGIN& b) {
+            return lstrcmpiW(a.plugin_product_name, b.plugin_product_name) < 0;
+        }
+    );
+
     for (size_t i = 0; i < s_plugins.size(); ++i)
     {
         s_plugins[i].framework_window = hwnd;
+
+        if (lstrcmpiW(s_plugins[i].plugin_product_name, s_strSelectedName.c_str()) == 0)
+        {
+            s_iPlugin = (INT)i;
+        }
     }
 
     PF_ActOne(GetCurPlugin(), ACTION_RECREATE, 0, 0);
@@ -242,6 +316,7 @@ BOOL OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
 void OnDestroy(HWND hwnd)
 {
+    DoSaveSettings(hwnd);
     PF_UnloadAll(s_plugins);
     PostQuitMessage(0);
 }
