@@ -20,6 +20,7 @@ static HWND s_hwndTarget = NULL;
 static std::vector<PLUGIN> s_plugins;
 static INT s_iPlugin = 0;
 static std::wstring s_strSelectedName;
+static std::wstring s_strInitialName;
 
 static inline PLUGIN *GetCurPlugin(void)
 {
@@ -421,6 +422,9 @@ BOOL OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     DoLoadSettings(hwnd);
 
+    if (s_strInitialName.size())
+        s_strSelectedName = s_strInitialName;
+
     if (!PF_LoadAll(s_plugins, szPath))
     {
         GetModuleFileName(NULL, szPath, ARRAYSIZE(szPath));
@@ -584,11 +588,30 @@ WinMain(HINSTANCE   hInstance,
     RECT rcWork;
     SystemParametersInfo(SPI_GETWORKAREA, 0, &rcWork, 0);
 
+    int argc;
+    LPWSTR *wargv = CommandLineToArgvW(GetCommandLineW(), &argc);
+    HWND owner = NULL;
+    for (int i = 1; i < argc; ++i)
+    {
+        if (lstrcmpiW(wargv[i], L"--name") == 0 && i + 1 < argc)
+        {
+            ++i;
+            s_strInitialName = wargv[i];
+            continue;
+        }
+        if (lstrcmpiW(wargv[i], L"--owner") == 0 && i + 1 < argc)
+        {
+            ++i;
+            owner = (HWND)(ULONG_PTR)wcstoul(wargv[i], NULL, 0);
+            continue;
+        }
+    }
+
     DWORD style = WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN;
     DWORD exstyle = WS_EX_TOPMOST | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW;
     HWND hwnd = CreateWindowEx(exstyle, s_szName, s_szName, style,
         rcWork.left, rcWork.bottom, 0, 0,
-        NULL, NULL, hInstance, NULL);
+        owner, NULL, hInstance, NULL);
     if (!hwnd)
     {
         MessageBoxA(NULL, "CreateWindowEx failed", NULL, MB_ICONERROR);
