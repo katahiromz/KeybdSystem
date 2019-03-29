@@ -606,6 +606,7 @@ WinMain(HINSTANCE   hInstance,
             continue;
         }
     }
+    GlobalFree(wargv);
 
     DWORD style = WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN;
     DWORD exstyle = WS_EX_TOPMOST | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW;
