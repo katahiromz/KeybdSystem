@@ -448,16 +448,16 @@ void OnRefresh(PLUGIN *pi)
     if (s_dwStatus & ALT)
     {
         if (hwndAlt1)
-            Button_SetCheck(hwndAlt1, BST_CHECKED);
+            pi->driver(pi, DRIVER_SETCHECK, (WPARAM)hwndAlt1, BST_CHECKED);
         if (hwndAlt2)
-            Button_SetCheck(hwndAlt2, BST_CHECKED);
+            pi->driver(pi, DRIVER_SETCHECK, (WPARAM)hwndAlt2, BST_CHECKED);
     }
     else
     {
         if (hwndAlt1)
-            Button_SetCheck(hwndAlt1, BST_UNCHECKED);
+            pi->driver(pi, DRIVER_SETCHECK, (WPARAM)hwndAlt1, BST_UNCHECKED);
         if (hwndAlt2)
-            Button_SetCheck(hwndAlt2, BST_UNCHECKED);
+            pi->driver(pi, DRIVER_SETCHECK, (WPARAM)hwndAlt2, BST_UNCHECKED);
     }
 
     HWND hwndCtrl1 = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_CTRL));
@@ -465,16 +465,16 @@ void OnRefresh(PLUGIN *pi)
     if (s_dwStatus & CTRL)
     {
         if (hwndCtrl1)
-            Button_SetCheck(hwndCtrl1, BST_CHECKED);
+            pi->driver(pi, DRIVER_SETCHECK, (WPARAM)hwndCtrl1, BST_CHECKED);
         if (hwndCtrl2)
-            Button_SetCheck(hwndCtrl2, BST_CHECKED);
+            pi->driver(pi, DRIVER_SETCHECK, (WPARAM)hwndCtrl2, BST_CHECKED);
     }
     else
     {
         if (hwndCtrl1)
-            Button_SetCheck(hwndCtrl1, BST_UNCHECKED);
+            pi->driver(pi, DRIVER_SETCHECK, (WPARAM)hwndCtrl1, BST_UNCHECKED);
         if (hwndCtrl2)
-            Button_SetCheck(hwndCtrl2, BST_UNCHECKED);
+            pi->driver(pi, DRIVER_SETCHECK, (WPARAM)hwndCtrl2, BST_UNCHECKED);
     }
 
     HWND hwndShift1 = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_SHIFT));
@@ -482,16 +482,16 @@ void OnRefresh(PLUGIN *pi)
     if (s_dwStatus & SHIFT)
     {
         if (hwndShift1)
-            Button_SetCheck(hwndShift1, BST_CHECKED);
+            pi->driver(pi, DRIVER_SETCHECK, (WPARAM)hwndShift1, BST_CHECKED);
         if (hwndShift2)
-            Button_SetCheck(hwndShift2, BST_CHECKED);
+            pi->driver(pi, DRIVER_SETCHECK, (WPARAM)hwndShift2, BST_CHECKED);
     }
     else
     {
         if (hwndShift1)
-            Button_SetCheck(hwndShift1, BST_UNCHECKED);
+            pi->driver(pi, DRIVER_SETCHECK, (WPARAM)hwndShift1, BST_UNCHECKED);
         if (hwndShift2)
-            Button_SetCheck(hwndShift2, BST_UNCHECKED);
+            pi->driver(pi, DRIVER_SETCHECK, (WPARAM)hwndShift2, BST_UNCHECKED);
     }
 
     HWND hwndCaps = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_CAPS));
@@ -499,25 +499,25 @@ void OnRefresh(PLUGIN *pi)
     {
         s_dwStatus |= CAPS;
         if (hwndCaps)
-            Button_SetCheck(hwndCaps, BST_CHECKED);
+            pi->driver(pi, DRIVER_SETCHECK, (WPARAM)hwndCaps, BST_CHECKED);
     }
     else
     {
         s_dwStatus &= ~CAPS;
         if (hwndCaps)
-            Button_SetCheck(hwndCaps, BST_UNCHECKED);
+            pi->driver(pi, DRIVER_SETCHECK, (WPARAM)hwndCaps, BST_UNCHECKED);
     }
 
     HWND hwndNum = FindWindowEx(pi->plugin_window, NULL, TEXT("BUTTON"), LoadStringDx(IDS_NUM));
     if (IsNumLocked())
     {
         if (hwndNum)
-            Button_SetCheck(hwndNum, BST_CHECKED);
+            pi->driver(pi, DRIVER_SETCHECK, (WPARAM)hwndNum, BST_CHECKED);
     }
     else
     {
         if (hwndNum)
-            Button_SetCheck(hwndNum, BST_UNCHECKED);
+            pi->driver(pi, DRIVER_SETCHECK, (WPARAM)hwndNum, BST_UNCHECKED);
     }
 }
 

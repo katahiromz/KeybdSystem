@@ -53,134 +53,133 @@ void ModifyStyleEx(HWND hwnd, DWORD dwRemove, DWORD dwAdd)
     SetWindowLong(hwnd, GWL_EXSTYLE, exstyle);
 }
 
-LRESULT OnNotify(HWND hwnd, int idFrom, LPNMHDR pnmhdr)
+
+UINT GetCheck(HWND hwndItem)
 {
-    if (pnmhdr->code == NM_CUSTOMDRAW && pnmhdr->hwndFrom)
+    assert(IsWindow(hwndItem));
+    UINT uChecked = (UINT)GetWindowLongPtr(hwndItem, GWLP_USERDATA);
+    return uChecked;
+}
+
+void SetCheck(HWND hwndItem, UINT uChecked)
+{
+    assert(IsWindow(hwndItem));
+    SetWindowLongPtr(hwndItem, GWLP_USERDATA, (LONG_PTR)uChecked);
+    InvalidateRect(hwndItem, NULL, TRUE);
+}
+
+void OnDrawItem(HWND hwnd, INT idFrom, DRAWITEMSTRUCT *pDrawItem)
+{
+    if (LRESULT ret = PF_ActOne(GetCurPlugin(), ACTION_OWNERDRAW,
+                                (WPARAM)idFrom, (LPARAM)pDrawItem))
     {
-        if (LRESULT ret = PF_ActOne(GetCurPlugin(), ACTION_CUSTOMDRAW,
-                                    (WPARAM)idFrom, (LPARAM)pnmhdr))
-        {
-            return ret;
-        }
+        return;
+    }
 
-        NMCUSTOMDRAW *pcd = (NMCUSTOMDRAW *)pnmhdr;
-        HWND hwndFrom = pnmhdr->hwndFrom;
+    if (pDrawItem->CtlType != ODT_BUTTON)
+        return;
 
-        TCHAR szText[64];
-        GetWindowText(hwndFrom, szText, 64);
+    HDC hDC = pDrawItem->hDC;
+    HWND hwndItem = pDrawItem->hwndItem;
 
-        DWORD style = GetWindowStyle(hwndFrom);
-        if ((style & BS_TYPEMASK) == BS_PUSHBUTTON ||
-            (style & BS_TYPEMASK) == BS_DEFPUSHBUTTON)
+    TCHAR szText[64];
+    GetWindowText(hwndItem, szText, 64);
+
+    RECT rc;
+    GetClientRect(hwndItem, &rc);
+
+    if (pDrawItem->itemState & ODS_HOTLIGHT)
+    {
+        if (GetCheck(hwndItem) & BST_CHECKED)
         {
-        }
-        else if ((style & BS_PUSHLIKE) && 
-            ((style & BS_TYPEMASK) == BS_AUTOCHECKBOX ||
-             (style & BS_TYPEMASK) == BS_AUTORADIOBUTTON ||
-             (style & BS_TYPEMASK) == BS_CHECKBOX ||
-             (style & BS_TYPEMASK) == BS_RADIOBUTTON))
-        {
+            DrawFrameControl(hDC, &rc, DFC_BUTTON, DFCS_BUTTONPUSH | DFCS_PUSHED | DFCS_HOT);
         }
         else
         {
-            return CDRF_DODEFAULT;
-        }
-
-        RECT rc;
-        GetClientRect(hwndFrom, &rc);
-
-        switch (pcd->dwDrawStage)
-        {
-        case CDDS_PREERASE:
-        case CDDS_ITEMPREERASE:
-            if (pcd->uItemState & CDIS_HOT)
-            {
-                if (pcd->uItemState & CDIS_SELECTED)
-                    DrawFrameControl(pcd->hdc, &rc, DFC_BUTTON, DFCS_BUTTONPUSH | DFCS_PUSHED | DFCS_HOT);
-                else
-                    DrawFrameControl(pcd->hdc, &rc, DFC_BUTTON, DFCS_BUTTONPUSH | DFCS_HOT);
-            }
+            if (pDrawItem->itemState & ODS_SELECTED)
+                DrawFrameControl(hDC, &rc, DFC_BUTTON, DFCS_BUTTONPUSH | DFCS_PUSHED | DFCS_HOT);
             else
-            {
-                if (pcd->uItemState & CDIS_SELECTED)
-                    DrawFrameControl(pcd->hdc, &rc, DFC_BUTTON, DFCS_BUTTONPUSH | DFCS_PUSHED);
-                else
-                    DrawFrameControl(pcd->hdc, &rc, DFC_BUTTON, DFCS_BUTTONPUSH);
-            }
-            return CDRF_NOTIFYPOSTERASE;
-        case CDDS_POSTERASE:
-        case CDDS_ITEMPOSTERASE:
-            return CDRF_SKIPDEFAULT;
-        case CDDS_PREPAINT:
-        case CDDS_ITEMPREPAINT:
-            {
-                HFONT hFont = GetWindowFont(hwnd);
-                assert(hFont);
-
-                SIZE siz;
-                siz.cx = (rc.right - rc.left) * 8 / 10;
-                siz.cy = (rc.bottom - rc.top) * 6 / 10;
-
-                LOGFONT lf;
-                GetObject(hFont, sizeof(lf), &lf);
-                lf.lfQuality = ANTIALIASED_QUALITY;
-                lf.lfHeight = -std::min(siz.cx, siz.cy);
-
-                if (lstrcmpi(lf.lfFaceName, TEXT("MS UI Gothic")) == 0)
-                {
-                    lf.lfWeight = FW_BOLD;
-                    if (~GetFileAttributes(TEXT("C:\\Windows\\Fonts\\meiryo.ttc")))
-                        StringCbCopy(lf.lfFaceName, sizeof(lf.lfFaceName), TEXT("Meiryo"));
-                    else
-                        StringCbCopy(lf.lfFaceName, sizeof(lf.lfFaceName), TEXT("MS PGothic"));
-                }
-
-                UINT uFormat = DT_SINGLELINE | DT_CENTER | DT_VCENTER;
-
-                for (INT i = 0; i < 16; ++i)
-                {
-                    hFont = CreateFontIndirect(&lf);
-
-                    RECT rcText;
-                    SetRectEmpty(&rcText);
-
-                    HGDIOBJ hFontOld = SelectObject(pcd->hdc, hFont);
-                    DrawText(pcd->hdc, szText, lstrlen(szText), &rcText, uFormat | DT_CALCRECT);
-                    SelectObject(pcd->hdc, hFontOld);
-
-                    SIZE sizText;
-                    sizText.cx = rcText.right - rcText.left;
-                    sizText.cy = rcText.bottom - rcText.top;
-                    if (sizText.cx <= siz.cx && sizText.cy <= siz.cy)
-                        break;
-
-                    lf.lfHeight = lf.lfHeight * 9 / 10;
-                    DeleteObject(hFont);
-                }
-
-                if (pcd->uItemState & CDIS_SELECTED)
-                    OffsetRect(&rc, 1, 1);
-
-                HGDIOBJ hFontOld = SelectObject(pcd->hdc, hFont);
-                SetBkMode(pcd->hdc, TRANSPARENT);
-                SetTextColor(pcd->hdc, GetSysColor(COLOR_BTNTEXT));
-                DrawText(pcd->hdc, szText, lstrlen(szText), &rc, uFormat);
-                SelectObject(pcd->hdc, hFontOld);
-
-                DeleteObject(hFont);
-            }
-            return CDRF_SKIPDEFAULT;
-        case CDDS_POSTPAINT:
-        case CDDS_ITEMPOSTPAINT:
-            return CDRF_SKIPDEFAULT;
-        case CDDS_SUBITEM:
-            return CDRF_SKIPDEFAULT;
+                DrawFrameControl(hDC, &rc, DFC_BUTTON, DFCS_BUTTONPUSH | DFCS_HOT);
         }
-
-        return CDRF_DODEFAULT;
+    }
+    else
+    {
+        if (GetCheck(hwndItem) & BST_CHECKED)
+        {
+            DrawFrameControl(hDC, &rc, DFC_BUTTON, DFCS_BUTTONPUSH | DFCS_PUSHED);
+        }
+        else
+        {
+            if (pDrawItem->itemState & ODS_SELECTED)
+                DrawFrameControl(hDC, &rc, DFC_BUTTON, DFCS_BUTTONPUSH | DFCS_PUSHED);
+            else
+                DrawFrameControl(hDC, &rc, DFC_BUTTON, DFCS_BUTTONPUSH);
+        }
     }
 
-    return 0;
+    HFONT hFont = GetWindowFont(hwnd);
+    assert(hFont);
+
+    SIZE siz;
+
+    if (szText[0] == 'F' && '0' <= szText[1] && szText[1] <= '9' && szText[2] == 0)
+    {
+        siz.cx = (rc.right - rc.left) * 8 / 10;
+        siz.cy = (rc.bottom - rc.top) * 5 / 10;
+    }
+    else
+    {
+        siz.cx = (rc.right - rc.left) * 8 / 10;
+        siz.cy = (rc.bottom - rc.top) * 6 / 10;
+    }
+
+    LOGFONT lf;
+    GetObject(hFont, sizeof(lf), &lf);
+    lf.lfQuality = ANTIALIASED_QUALITY;
+    lf.lfHeight = -std::min(siz.cx, siz.cy);
+
+    if (lstrcmpi(lf.lfFaceName, TEXT("MS UI Gothic")) == 0)
+    {
+        lf.lfWeight = FW_BOLD;
+        if (~GetFileAttributes(TEXT("C:\\Windows\\Fonts\\meiryo.ttc")))
+            StringCbCopy(lf.lfFaceName, sizeof(lf.lfFaceName), TEXT("Meiryo"));
+        else
+            StringCbCopy(lf.lfFaceName, sizeof(lf.lfFaceName), TEXT("MS PGothic"));
+    }
+
+    UINT uFormat = DT_SINGLELINE | DT_CENTER | DT_VCENTER;
+
+    for (INT i = 0; i < 16; ++i)
+    {
+        hFont = CreateFontIndirect(&lf);
+
+        RECT rcText;
+        SetRectEmpty(&rcText);
+
+        HGDIOBJ hFontOld = SelectObject(hDC, hFont);
+        DrawText(hDC, szText, lstrlen(szText), &rcText, uFormat | DT_CALCRECT);
+        SelectObject(hDC, hFontOld);
+
+        SIZE sizText;
+        sizText.cx = rcText.right - rcText.left;
+        sizText.cy = rcText.bottom - rcText.top;
+        if (sizText.cx <= siz.cx && sizText.cy <= siz.cy)
+            break;
+
+        lf.lfHeight = lf.lfHeight * 9 / 10;
+        DeleteObject(hFont);
+    }
+
+    if (pDrawItem->itemState & CDIS_SELECTED)
+        OffsetRect(&rc, 1, 1);
+
+    HGDIOBJ hFontOld = SelectObject(hDC, hFont);
+    SetBkMode(hDC, TRANSPARENT);
+    SetTextColor(hDC, GetSysColor(COLOR_BTNTEXT));
+    DrawText(hDC, szText, lstrlen(szText), &rc, uFormat);
+    SelectObject(hDC, hFontOld);
+
+    DeleteObject(hFont);
 }
 
 INT_PTR CALLBACK
@@ -204,18 +203,31 @@ DialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_CONTEXTMENU:
         PostMessage(hwndParent, uMsg, wParam, lParam);
         break;
-    case WM_NOTIFY:
-        result = OnNotify(hwnd, (INT)wParam, (NMHDR *)lParam);
-        SetWindowLongPtr(hwnd, DWLP_MSGRESULT, result);
+    case WM_DRAWITEM:
+        OnDrawItem(hwnd, (INT)wParam, (DRAWITEMSTRUCT *)lParam);
+        SetWindowLongPtr(hwnd, DWLP_MSGRESULT, TRUE);
         return TRUE;
+    case WM_MEASUREITEM:
+        break;
     }
     return 0;
 }
 
 void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
-    if (hwndCtl)
+    if (hwndCtl && codeNotify == BN_CLICKED)
     {
+        if (GetWindowStyle(hwndCtl) & BS_PUSHLIKE)
+        {
+            if (GetCheck(hwndCtl) & BST_CHECKED)
+            {
+                SetCheck(hwndCtl, BST_UNCHECKED);
+            }
+            else
+            {
+                SetCheck(hwndCtl, BST_CHECKED);
+            }
+        }
         PF_ActOne(GetCurPlugin(), ACTION_COMMAND, MAKEWPARAM(id, codeNotify), (LPARAM)hwndCtl);
         return;
     }
@@ -249,6 +261,34 @@ void OnSize(HWND hwnd, UINT state, int cx, int cy)
         GetSystemMetrics(SM_CXVSCROLL),
         GetSystemMetrics(SM_CYHSCROLL),
         TRUE);
+}
+
+void DoUpdateButtons(HWND hDlg)
+{
+    TCHAR szClass[64];
+
+    for (HWND hChild = GetTopWindow(hDlg);
+         hChild;
+         hChild = GetWindow(hChild, GW_HWNDNEXT))
+    {
+        GetClassName(hChild, szClass, ARRAYSIZE(szClass));
+
+        if (lstrcmpi(szClass, TEXT("BUTTON")) == 0)
+        {
+            DWORD style = GetWindowStyle(hChild);
+
+            if ((style & BS_TYPEMASK) == BS_PUSHBUTTON ||
+                (style & BS_TYPEMASK) == BS_DEFPUSHBUTTON ||
+                (((style & BS_TYPEMASK) == BS_AUTOCHECKBOX ||
+                  (style & BS_TYPEMASK) == BS_CHECKBOX) &&
+                 (style & BS_PUSHLIKE)))
+            {
+                style &= ~BS_TYPEMASK;
+                style |= BS_OWNERDRAW;
+                SetWindowLong(hChild, GWL_STYLE, style);
+            }
+        }
+    }
 }
 
 LRESULT APIENTRY PF_Driver(struct PLUGIN *pi, UINT uFunc, WPARAM wParam, LPARAM lParam)
@@ -330,6 +370,9 @@ LRESULT APIENTRY PF_Driver(struct PLUGIN *pi, UINT uFunc, WPARAM wParam, LPARAM 
             }
 
             PF_ActOne(pi, ACTION_REFRESH, 0, 0);
+
+            DoUpdateButtons(s_hChildWnd);
+
             ShowWindow(s_hChildWnd, SW_SHOW);
             SetTimer(s_hChildWnd, 999, 100, NULL);
         }
@@ -344,6 +387,20 @@ LRESULT APIENTRY PF_Driver(struct PLUGIN *pi, UINT uFunc, WPARAM wParam, LPARAM 
 
             DestroyWindow(s_hChildWnd);
             pi->plugin_window = s_hChildWnd = NULL;
+        }
+        return TRUE;
+
+    case DRIVER_GETCHECK:
+        {
+            HWND hwndItem = (HWND)wParam;
+            return GetCheck(hwndItem);
+        }
+
+    case DRIVER_SETCHECK:
+        {
+            HWND hwndItem = (HWND)wParam;
+            UINT uChecked = (UINT)lParam;
+            SetCheck(hwndItem, uChecked);
         }
         return TRUE;
     }
@@ -603,6 +660,11 @@ WinMain(HINSTANCE   hInstance,
         {
             ++i;
             owner = (HWND)(ULONG_PTR)wcstoul(wargv[i], NULL, 0);
+            continue;
+        }
+        if (lstrcmpiW(wargv[i], L"--foreground") == 0)
+        {
+            owner = GetForegroundWindow();
             continue;
         }
     }
