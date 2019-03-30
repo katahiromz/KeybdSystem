@@ -342,7 +342,7 @@ STRINGTABLE
     IDS_TAB, "Tab"
     IDS_APPS, "Apps"
     IDS_PRINT, "PrSc"
-    IDS_BREAK, "Brk"
+    IDS_BREAK, "Break"
     IDS_APPNAME, "Easy English Keyboard"
 }
 

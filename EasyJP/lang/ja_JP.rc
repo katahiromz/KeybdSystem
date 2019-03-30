@@ -982,7 +982,7 @@ STRINGTABLE
     IDS_TAB, "Tab"
     IDS_APPS, "Apps"
     IDS_PRINT, "PrSc"
-    IDS_BREAK, "Brk"
+    IDS_BREAK, "Break"
     IDS_NUM, "Num"
     IDS_HAN_ZEN, "半/全"
     IDS_ROMAJI, "ﾛｰﾏ字"

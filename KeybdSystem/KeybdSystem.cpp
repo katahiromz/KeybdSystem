@@ -137,17 +137,8 @@ void OnDrawItem(HWND hwnd, INT idFrom, DRAWITEMSTRUCT *pDrawItem)
     assert(hFont);
 
     SIZE siz;
-
-    if (szText[0] == 'F' && '0' <= szText[1] && szText[1] <= '9' && szText[2] == 0)
-    {
-        siz.cx = (rc.right - rc.left) * 8 / 10;
-        siz.cy = (rc.bottom - rc.top) * 5 / 10;
-    }
-    else
-    {
-        siz.cx = (rc.right - rc.left) * 8 / 10;
-        siz.cy = (rc.bottom - rc.top) * 6 / 10;
-    }
+    siz.cx = (rc.right - rc.left) * 8 / 10;
+    siz.cy = (rc.bottom - rc.top) * 6 / 10;
 
     LOGFONT lf;
     GetObject(hFont, sizeof(lf), &lf);
