@@ -53,11 +53,16 @@ void ModifyStyleEx(HWND hwnd, DWORD dwRemove, DWORD dwAdd)
     SetWindowLong(hwnd, GWL_EXSTYLE, exstyle);
 }
 
+inline BOOL IsOwnerDrawPushLike(HWND hwndItem)
+{
+    DWORD value = (BS_OWNERDRAW | BS_PUSHLIKE);
+    return ((GetWindowStyle(hwndItem) & value) == value);
+}
 
 UINT GetCheck(HWND hwndItem)
 {
     assert(IsWindow(hwndItem));
-    if ((GetWindowStyle(hwndItem) & (BS_OWNERDRAW | BS_PUSHLIKE)) == BS_OWNERDRAW | BS_PUSHLIKE)
+    if (IsOwnerDrawPushLike(hwndItem))
     {
         UINT uChecked = (UINT)GetWindowLongPtr(hwndItem, GWLP_USERDATA);
         return uChecked;
@@ -68,7 +73,7 @@ UINT GetCheck(HWND hwndItem)
 void SetCheck(HWND hwndItem, UINT uChecked)
 {
     assert(IsWindow(hwndItem));
-    if ((GetWindowStyle(hwndItem) & (BS_OWNERDRAW | BS_PUSHLIKE)) == BS_OWNERDRAW | BS_PUSHLIKE)
+    if (IsOwnerDrawPushLike(hwndItem))
     {
         SetWindowLongPtr(hwndItem, GWLP_USERDATA, (LONG_PTR)uChecked);
         InvalidateRect(hwndItem, NULL, TRUE);
@@ -228,7 +233,7 @@ void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
     if (hwndCtl && codeNotify == BN_CLICKED)
     {
-        if (GetWindowStyle(hwndCtl) & BS_PUSHLIKE)
+        if (IsOwnerDrawPushLike(hwndCtl))
         {
             if (GetCheck(hwndCtl) & BST_CHECKED)
             {
