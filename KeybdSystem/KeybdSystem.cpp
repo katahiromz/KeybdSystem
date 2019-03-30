@@ -57,15 +57,26 @@ void ModifyStyleEx(HWND hwnd, DWORD dwRemove, DWORD dwAdd)
 UINT GetCheck(HWND hwndItem)
 {
     assert(IsWindow(hwndItem));
-    UINT uChecked = (UINT)GetWindowLongPtr(hwndItem, GWLP_USERDATA);
-    return uChecked;
+    if (GetWindowStyle(hwndItem) & BS_PUSHLIKE)
+    {
+        UINT uChecked = (UINT)GetWindowLongPtr(hwndItem, GWLP_USERDATA);
+        return uChecked;
+    }
+    return Button_GetCheck(hwndItem);
 }
 
 void SetCheck(HWND hwndItem, UINT uChecked)
 {
     assert(IsWindow(hwndItem));
-    SetWindowLongPtr(hwndItem, GWLP_USERDATA, (LONG_PTR)uChecked);
-    InvalidateRect(hwndItem, NULL, TRUE);
+    if (GetWindowStyle(hwndItem) & BS_PUSHLIKE)
+    {
+        SetWindowLongPtr(hwndItem, GWLP_USERDATA, (LONG_PTR)uChecked);
+        InvalidateRect(hwndItem, NULL, TRUE);
+    }
+    else
+    {
+        Button_SetCheck(hwndItem, uChecked);
+    }
 }
 
 void OnDrawItem(HWND hwnd, INT idFrom, DRAWITEMSTRUCT *pDrawItem)
