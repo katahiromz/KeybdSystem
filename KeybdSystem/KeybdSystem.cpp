@@ -631,6 +631,15 @@ WinMain(HINSTANCE   hInstance,
     s_hInst = hInstance;
     InitCommonControls();
 
+    INT i = 0;
+    while (HWND hwnd = FindWindow(s_szName, NULL))
+    {
+        PostMessage(hwnd, WM_CLOSE, 0, 0);
+        Sleep(100);
+        if (++i > 100)
+            break;
+    }
+
     WNDCLASSEX wcx;
     ZeroMemory(&wcx, sizeof(wcx));
     wcx.cbSize = sizeof(wcx);
