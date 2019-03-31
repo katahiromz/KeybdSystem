@@ -239,7 +239,7 @@ void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
         return;
     }
 
-    if (codeNotify == 0)
+    if (codeNotify == 0xFFFF)
     {
         KillTimer(s_hChildWnd, 999);
 
@@ -570,7 +570,7 @@ void DoShowContextMenu(HWND hwnd, INT x, INT y)
     UINT uFlags = TPM_LEFTALIGN | TPM_RIGHTBUTTON | TPM_RETURNCMD;
     INT nCmd = TrackPopupMenu(hMenu, uFlags, x, y, 0, hwnd, NULL);
     PostMessage(hwnd, WM_NULL, 0, 0);
-    PostMessage(hwnd, WM_COMMAND, nCmd, 0);
+    PostMessage(hwnd, WM_COMMAND, MAKEWPARAM(nCmd, 0xFFFF), 0);
 
     DestroyMenu(hMenu);
 }
@@ -667,11 +667,6 @@ WinMain(HINSTANCE   hInstance,
         {
             ++i;
             owner = (HWND)(ULONG_PTR)wcstoul(wargv[i], NULL, 0);
-            continue;
-        }
-        if (lstrcmpiW(wargv[i], L"--foreground") == 0)
-        {
-            owner = GetForegroundWindow();
             continue;
         }
     }
