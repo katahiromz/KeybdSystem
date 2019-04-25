@@ -12,7 +12,7 @@
 
 AppId={{E3FA8C2B-95F2-423E-86AD-F9BB78F2312C}
 AppName=KeybdSystem
-AppVerName=KeybdSystem 0.9
+AppVerName=KeybdSystem 0.9.1
 AppPublisher=Katayama Hirofumi MZ
 AppPublisherURL=http://katahiromz.web.fc2.com/
 AppSupportURL=http://katahiromz.web.fc2.com/
@@ -23,7 +23,7 @@ DisableDirPage=no
 AllowNoIcons=yes
 LicenseFile=LICENSE.txt
 OutputDir=.
-OutputBaseFilename=KeybdSystem-0.9-setup
+OutputBaseFilename=KeybdSystem-0.9.1-setup
 SetupIconFile=KeybdSystem\res\Icon_1.ico
 Compression=lzma
 SolidCompression=yes
@@ -33,9 +33,9 @@ VersionInfoCompany=Katayama Hirofumi MZ
 VersionInfoCopyright=Copyright (C) 2019 Katayama Hirofumi MZ.
 VersionInfoDescription=On-screen Keyboard
 VersionInfoProductName=KeybdSystem
-VersionInfoProductTextVersion=0.9
-VersionInfoProductVersion=0.9
-VersionInfoVersion=0.9
+VersionInfoProductTextVersion=0.9.1
+VersionInfoProductVersion=0.9.1
+VersionInfoVersion=0.9.1
 
 [Languages]
 Name: "english"; MessagesFile:  "compiler:Default.isl"
