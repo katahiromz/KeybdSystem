@@ -470,6 +470,7 @@ BOOL DoSaveSettings(HWND hwnd)
         }
         RegCloseKey(hSoftware);
     }
+    return TRUE;
 }
 
 BOOL OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
